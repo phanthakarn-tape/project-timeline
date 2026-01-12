@@ -3,10 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Project Timeline (Compact Edition)</title>
+    <title>Project Timeline (Customizable)</title>
 
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS with Config -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class", // Enable class-based dark mode
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Sarabun", "sans-serif"],
+            },
+          },
+        },
+      }
+    </script>
 
     <!-- React & ReactDOM -->
     <script
@@ -28,11 +40,7 @@
     />
 
     <style>
-      body {
-        font-family: "Sarabun", sans-serif;
-        background-color: #f8fafc;
-        font-size: 13px;
-      }
+      /* Base styles handled by Tailwind, adding specific overrides */
       .resizer {
         position: absolute;
         right: 0;
@@ -45,8 +53,8 @@
       }
       .resizer:hover,
       .resizing {
-        background-color: #0f172a;
-      } /* Slate-900 */
+        background-color: #3b82f6;
+      }
       .cursor-grab {
         cursor: grab;
       }
@@ -54,26 +62,27 @@
         cursor: grabbing;
       }
 
-      /* Table Styles */
-      th,
-      td {
-        border-color: #e2e8f0;
-      } /* Slate-200 */
-
-      /* Scrollbar */
+      /* Custom Scrollbar for Dark Mode compatibility */
       ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
+        width: 8px;
+        height: 8px;
       }
       ::-webkit-scrollbar-track {
-        background: #f1f5f9;
+        background: transparent;
       }
       ::-webkit-scrollbar-thumb {
         background: #cbd5e1;
-        border-radius: 3px;
+        border-radius: 4px;
       }
       ::-webkit-scrollbar-thumb:hover {
         background: #94a3b8;
+      }
+
+      .dark ::-webkit-scrollbar-thumb {
+        background: #475569;
+      }
+      .dark ::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
       }
 
       /* Loading Overlay */
@@ -90,13 +99,21 @@
         align-items: center;
         z-index: 100;
       }
+      .dark .loading-overlay {
+        background: rgba(15, 23, 42, 0.9);
+      }
+
       .spinner {
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid #0f172a;
+        border: 3px solid #e2e8f0;
+        border-top: 3px solid #3b82f6;
         border-radius: 50%;
         width: 30px;
         height: 30px;
         animation: spin 1s linear infinite;
+      }
+      .dark .spinner {
+        border-color: #334155;
+        border-top-color: #60a5fa;
       }
       @keyframes spin {
         0% {
@@ -107,7 +124,7 @@
         }
       }
 
-      /* Dashboard Animations */
+      /* Animations */
       .animate-fade-in {
         animation: fadeIn 0.5s ease-out;
       }
@@ -131,15 +148,26 @@
           transform: scaleY(1);
         }
       }
+
+      /* Toggle Switch */
+      .toggle-checkbox:checked {
+        right: 0;
+        border-color: #3b82f6;
+      }
+      .toggle-checkbox:checked + .toggle-label {
+        background-color: #3b82f6;
+      }
     </style>
   </head>
-  <body class="text-slate-800 text-xs">
+  <body
+    class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-300"
+  >
     <div id="root"></div>
 
     <script type="text/babel">
       const { useState, useRef, useEffect, useMemo, useCallback } = React
 
-      // --- Icons (Compact) ---
+      // --- Icons ---
       const CalendarIcon = () => (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -202,7 +230,6 @@
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="text-slate-400"
         >
           <circle cx="9" cy="12" r="1" />
           <circle cx="9" cy="5" r="1" />
@@ -258,7 +285,7 @@
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="text-emerald-600"
+            className="text-emerald-500"
           >
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
             <polyline points="14 2 14 8 20 8" />
@@ -277,7 +304,7 @@
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="text-slate-400"
+            className="text-slate-400 dark:text-slate-500"
           >
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
             <polyline points="14 2 14 8 20 8" />
@@ -334,6 +361,44 @@
           <line x1="6" x2="6" y1="20" y2="16" />
         </svg>
       )
+      const MoonIcon = () => (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+        </svg>
+      )
+      const SunIcon = () => (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2" />
+          <path d="M12 20v2" />
+          <path d="m4.93 4.93 1.41 1.41" />
+          <path d="m17.66 17.66 1.41 1.41" />
+          <path d="M2 12h2" />
+          <path d="M20 12h2" />
+          <path d="m6.34 17.66-1.41 1.41" />
+          <path d="m19.07 4.93-1.41 1.41" />
+        </svg>
+      )
 
       // --- Defaults ---
       const generateInitialColumns = () => {
@@ -369,30 +434,61 @@
         tasks: defaultTasks,
       }
 
+      // --- Toggle Switch Component ---
+      const ToggleSwitch = ({ label, checked, onChange, icon }) => (
+        <div className="flex items-center justify-between py-2">
+          <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+            {icon}
+            <span className="text-sm font-medium">{label}</span>
+          </div>
+          <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+            <input
+              type="checkbox"
+              name="toggle"
+              id={`toggle-${label}`}
+              checked={checked}
+              onChange={(e) => onChange(e.target.checked)}
+              className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-slate-300 dark:border-slate-600 transition-all duration-300 checked:right-0 checked:border-blue-500"
+              style={{
+                top: 0,
+                left: checked ? "auto" : 0,
+                right: checked ? 0 : "auto",
+              }}
+            />
+            <label
+              htmlFor={`toggle-${label}`}
+              className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer transition-colors duration-300 ${
+                checked ? "bg-blue-500" : "bg-slate-300 dark:bg-slate-600"
+              }`}
+            ></label>
+          </div>
+        </div>
+      )
+
       // --- Modal Component ---
       const Modal = ({ isOpen, onClose, title, children }) => {
         if (!isOpen) return null
         return (
-          <div className="fixed inset-0 bg-slate-900 bg-opacity-75 flex items-center justify-center z-[100] backdrop-blur-sm">
-            <div className="bg-white border border-slate-200 rounded shadow-2xl w-full max-w-md">
-              <div className="px-4 py-3 border-b border-slate-100 flex justify-between items-center">
-                <h2 className="text-sm font-semibold text-slate-800">
+          <div className="fixed inset-0 bg-slate-900/50 dark:bg-black/70 flex items-center justify-center z-[100] backdrop-blur-sm transition-all">
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-2xl w-full max-w-md animate-fade-in">
+              <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
+                <h2 className="text-sm font-semibold text-slate-800 dark:text-white">
                   {title}
                 </h2>
                 <button
                   onClick={onClose}
-                  className="text-slate-400 hover:text-slate-600"
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                 >
                   <XCircleIcon />
                 </button>
               </div>
               <div className="p-4">{children}</div>
-              <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex justify-end gap-2 rounded-b">
+              <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-2 rounded-b">
                 <button
                   onClick={onClose}
-                  className="px-3 py-1.5 border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 rounded text-xs font-medium transition-colors"
+                  className="px-3 py-1.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded text-xs font-medium transition-colors"
                 >
-                  Cancel
+                  Close
                 </button>
               </div>
             </div>
@@ -400,9 +496,9 @@
         )
       }
 
-      // --- Dashboard Component (Formal & Clean) ---
-      const DashboardView = ({ project }) => {
-        // -- Calculations --
+      // --- Dashboard Component ---
+      const DashboardView = ({ project, isCompact }) => {
+        // Calculations
         const totalTasks = project.tasks.length
         const totalSlots = project.tasks.reduce(
           (acc, t) => acc + t.activeSlots.length,
@@ -435,72 +531,78 @@
         const topTasks = [...project.tasks]
           .sort((a, b) => b.activeSlots.length - a.activeSlots.length)
           .slice(0, 5)
-
         const daysOrder = ["MON", "TUE", "WED", "THU", "FRI"]
         const maxDayVal = Math.max(...Object.values(dayCounts), 1)
         const weekKeys = Object.keys(project.weekLabels)
         const totalWeekSlots =
           Object.values(weekCounts).reduce((a, b) => a + b, 0) || 1
 
+        const cardPadding = isCompact ? "p-3" : "p-5"
+        const cardHeight = isCompact ? "h-40" : "h-52"
+
         return (
-          <div className="p-4 animate-fade-in bg-slate-50 min-h-full">
+          <div className="p-4 animate-fade-in bg-slate-50 dark:bg-slate-900/50 min-h-full">
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-              <div className="bg-white p-3 rounded border border-slate-200 shadow-sm flex flex-col items-center justify-center">
-                <div className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">
-                  Total Tasks
+              {[
+                {
+                  label: "Total Tasks",
+                  val: totalTasks,
+                  sub: "Active items",
+                  color: "text-slate-800 dark:text-white",
+                },
+                {
+                  label: "Total Work Slots",
+                  val: totalSlots,
+                  sub: "Scheduled blocks",
+                  color: "text-blue-700 dark:text-blue-400",
+                },
+                {
+                  label: "Busiest Day",
+                  val: busiestDay,
+                  sub: `${maxCount} slots`,
+                  color: "text-slate-800 dark:text-white",
+                },
+                {
+                  label: "Completion",
+                  val: `${
+                    totalSlots > 0
+                      ? Math.min(
+                          100,
+                          Math.round((totalSlots / (totalTasks * 5)) * 100)
+                        )
+                      : 0
+                  }%`,
+                  sub: "Est. capacity",
+                  color: "text-emerald-600 dark:text-emerald-400",
+                },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  className={`bg-white dark:bg-slate-800 ${cardPadding} rounded border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center`}
+                >
+                  <div className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">
+                    {item.label}
+                  </div>
+                  <div className={`text-2xl font-bold ${item.color}`}>
+                    {item.val}
+                  </div>
+                  <div className="text-[10px] text-slate-400">{item.sub}</div>
                 </div>
-                <div className="text-2xl font-bold text-slate-800">
-                  {totalTasks}
-                </div>
-                <div className="text-[10px] text-slate-400">Active items</div>
-              </div>
-              <div className="bg-white p-3 rounded border border-slate-200 shadow-sm flex flex-col items-center justify-center">
-                <div className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">
-                  Total Work Slots
-                </div>
-                <div className="text-2xl font-bold text-blue-700">
-                  {totalSlots}
-                </div>
-                <div className="text-[10px] text-slate-400">
-                  Scheduled blocks
-                </div>
-              </div>
-              <div className="bg-white p-3 rounded border border-slate-200 shadow-sm flex flex-col items-center justify-center">
-                <div className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">
-                  Busiest Day
-                </div>
-                <div className="text-2xl font-bold text-slate-800">
-                  {busiestDay}
-                </div>
-                <div className="text-[10px] text-slate-400">
-                  {maxCount} slots
-                </div>
-              </div>
-              <div className="bg-white p-3 rounded border border-slate-200 shadow-sm flex flex-col items-center justify-center">
-                <div className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">
-                  Completion
-                </div>
-                <div className="text-2xl font-bold text-emerald-600">
-                  {totalSlots > 0
-                    ? Math.min(
-                        100,
-                        Math.round((totalSlots / (totalTasks * 5)) * 100)
-                      )
-                    : 0}
-                  %
-                </div>
-                <div className="text-[10px] text-slate-400">Est. capacity</div>
-              </div>
+              ))}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              {/* Chart 1: Daily Workload (Bar) */}
-              <div className="bg-white p-3 rounded border border-slate-200 shadow-sm lg:col-span-2">
-                <h3 className="text-sm font-bold text-slate-800 mb-3 border-b border-slate-100 pb-2">
-                  Daily Workload Distribution
+              {/* Chart 1 */}
+              <div
+                className={`bg-white dark:bg-slate-800 ${cardPadding} rounded border border-slate-200 dark:border-slate-700 shadow-sm lg:col-span-2`}
+              >
+                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3 border-b border-slate-100 dark:border-slate-700 pb-2">
+                  Daily Workload
                 </h3>
-                <div className="h-40 flex items-end justify-between gap-2 px-2 pb-2 border-l border-b border-slate-200">
+                <div
+                  className={`${cardHeight} flex items-end justify-between gap-2 px-2 pb-2 border-l border-b border-slate-200 dark:border-slate-700`}
+                >
                   {daysOrder.map((day) => {
                     const count = dayCounts[day] || 0
                     const heightPercent = (count / maxDayVal) * 100
@@ -509,17 +611,17 @@
                         key={day}
                         className="flex flex-col items-center flex-1 h-full justify-end group"
                       >
-                        <div className="relative w-full max-w-[40px] bg-blue-50 rounded-t-sm overflow-hidden h-full flex items-end">
+                        <div className="relative w-full max-w-[40px] bg-blue-50 dark:bg-blue-900/30 rounded-t-sm overflow-hidden h-full flex items-end">
                           <div
-                            className="w-full bg-blue-600 hover:bg-blue-700 transition-all duration-500 bar-grow relative"
+                            className="w-full bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-400 transition-all duration-500 bar-grow relative"
                             style={{ height: `${heightPercent}%` }}
                           >
-                            <div className="absolute -top-6 w-full text-center text-[10px] font-bold text-blue-700 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="absolute -top-6 w-full text-center text-[10px] font-bold text-blue-700 dark:text-blue-300 opacity-0 group-hover:opacity-100 transition-opacity">
                               {count}
                             </div>
                           </div>
                         </div>
-                        <div className="mt-2 text-[10px] font-bold text-slate-500">
+                        <div className="mt-2 text-[10px] font-bold text-slate-500 dark:text-slate-400">
                           {day}
                         </div>
                       </div>
@@ -528,31 +630,26 @@
                 </div>
               </div>
 
-              {/* Chart 2: Week Comparison */}
-              <div className="bg-white p-3 rounded border border-slate-200 shadow-sm flex flex-col">
-                <h3 className="text-sm font-bold text-slate-800 mb-3 border-b border-slate-100 pb-2">
-                  Weekly Breakdown
+              {/* Chart 2 */}
+              <div
+                className={`bg-white dark:bg-slate-800 ${cardPadding} rounded border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col`}
+              >
+                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3 border-b border-slate-100 dark:border-slate-700 pb-2">
+                  Weekly Split
                 </h3>
                 <div className="flex-1 flex flex-col justify-center items-center">
                   <div
-                    className="relative w-32 h-32 rounded-full flex items-center justify-center border-4 border-slate-50"
+                    className="relative w-32 h-32 rounded-full flex items-center justify-center border-4 border-slate-50 dark:border-slate-700"
                     style={{
-                      background: `conic-gradient(
-                                             #2563eb 0% ${
-                                               ((weekCounts[weekKeys[0]] || 0) /
-                                                 totalWeekSlots) *
-                                               100
-                                             }%, 
-                                             #94a3b8 ${
-                                               ((weekCounts[weekKeys[0]] || 0) /
-                                                 totalWeekSlots) *
-                                               100
-                                             }% 100%
-                                         )`,
+                      background: `conic-gradient(#2563eb 0% ${
+                        ((weekCounts[weekKeys[0]] || 0) / totalWeekSlots) * 100
+                      }%, #94a3b8 ${
+                        ((weekCounts[weekKeys[0]] || 0) / totalWeekSlots) * 100
+                      }% 100%)`,
                     }}
                   >
-                    <div className="absolute w-20 h-20 bg-white rounded-full flex flex-col items-center justify-center">
-                      <span className="text-xl font-bold text-slate-800">
+                    <div className="absolute w-20 h-20 bg-white dark:bg-slate-800 rounded-full flex flex-col items-center justify-center">
+                      <span className="text-xl font-bold text-slate-800 dark:text-white">
                         {totalWeekSlots}
                       </span>
                       <span className="text-[9px] text-slate-400 uppercase">
@@ -572,11 +669,11 @@
                               idx === 0 ? "bg-blue-600" : "bg-slate-400"
                             }`}
                           ></span>
-                          <span className="text-slate-600 font-medium truncate max-w-[100px]">
+                          <span className="text-slate-600 dark:text-slate-400 font-medium truncate max-w-[100px]">
                             {project.weekLabels[wk] || wk}
                           </span>
                         </div>
-                        <span className="font-bold text-slate-800">
+                        <span className="font-bold text-slate-800 dark:text-slate-200">
                           {weekCounts[wk] || 0}
                         </span>
                       </div>
@@ -585,10 +682,12 @@
                 </div>
               </div>
 
-              {/* Chart 3: Top Tasks */}
-              <div className="bg-white p-3 rounded border border-slate-200 shadow-sm lg:col-span-3">
-                <h3 className="text-sm font-bold text-slate-800 mb-3 border-b border-slate-100 pb-2">
-                  Top Task Effort Ranking
+              {/* Chart 3 */}
+              <div
+                className={`bg-white dark:bg-slate-800 ${cardPadding} rounded border border-slate-200 dark:border-slate-700 shadow-sm lg:col-span-3`}
+              >
+                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3 border-b border-slate-100 dark:border-slate-700 pb-2">
+                  Top Tasks
                 </h3>
                 <div className="space-y-3">
                   {topTasks.map((task, idx) => (
@@ -598,16 +697,16 @@
                       </div>
                       <div className="flex-1">
                         <div className="flex justify-between mb-1">
-                          <span className="text-xs font-semibold text-slate-700 truncate">
+                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate">
                             {task.name}
                           </span>
                           <span className="text-[10px] text-slate-500 font-medium">
                             {task.activeSlots.length} slots
                           </span>
                         </div>
-                        <div className="w-full bg-slate-100 rounded-full h-1.5">
+                        <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5">
                           <div
-                            className="bg-emerald-500 h-1.5 rounded-full transition-all duration-1000"
+                            className="bg-emerald-500 h-1.5 rounded-full"
                             style={{
                               width: `${
                                 (task.activeSlots.length /
@@ -642,6 +741,10 @@
         const [isSettingsOpen, setIsSettingsOpen] = useState(false)
         const [sidebarWidth, setSidebarWidth] = useState(250)
 
+        // Preference State
+        const [isDarkMode, setIsDarkMode] = useState(false)
+        const [isCompact, setIsCompact] = useState(true)
+
         const sidebarRef = useRef(null)
         const isResizing = useRef(false)
         const dragItem = useRef()
@@ -653,6 +756,15 @@
 
         // --- Init & Load ---
         useEffect(() => {
+          // Load Preferences
+          const savedDark = localStorage.getItem("pref_dark_mode") === "true"
+          setIsDarkMode(savedDark)
+          if (savedDark) document.documentElement.classList.add("dark")
+
+          const savedCompact = localStorage.getItem("pref_compact_mode")
+          if (savedCompact !== null) setIsCompact(savedCompact === "true")
+
+          // Load Data
           const savedUrl = localStorage.getItem("google_script_url")
           if (savedUrl) {
             setScriptUrl(savedUrl)
@@ -668,7 +780,18 @@
           }
         }, [])
 
-        // --- Auto Backup Locally ---
+        // --- Effect: Preferences ---
+        useEffect(() => {
+          if (isDarkMode) document.documentElement.classList.add("dark")
+          else document.documentElement.classList.remove("dark")
+          localStorage.setItem("pref_dark_mode", isDarkMode)
+        }, [isDarkMode])
+
+        useEffect(() => {
+          localStorage.setItem("pref_compact_mode", isCompact)
+        }, [isCompact])
+
+        // --- Auto Backup ---
         useEffect(() => {
           if (isLoading) return
           const dataToSave = { projects, activeProjectId }
@@ -679,7 +802,7 @@
           if (isConnected) setHasUnsavedChanges(true)
         }, [projects, activeProjectId])
 
-        // --- Google Sheets API Handlers ---
+        // --- API Handlers ---
         const loadFromSheet = async (url) => {
           if (!url) return
           setIsLoading(true)
@@ -687,18 +810,15 @@
             const cleanUrl = url.trim()
             const res = await fetch(cleanUrl)
             const data = await res.json()
-
             if (data.projects && Array.isArray(data.projects)) {
               setProjects(data.projects)
               if (data.activeProjectId) setActiveProjectId(data.activeProjectId)
               setIsConnected(true)
               setHasUnsavedChanges(false)
-            } else if (data.empty) {
-              setIsConnected(true)
-            }
+            } else if (data.empty) setIsConnected(true)
           } catch (e) {
-            console.error("Failed to load", e)
-            alert("Connection failed! Check URL.")
+            console.error(e)
+            alert("Connection failed!")
             setIsConnected(false)
           } finally {
             setIsLoading(false)
@@ -727,10 +847,8 @@
             const result = await res.json()
             if (result.result === "success") {
               setHasUnsavedChanges(false)
-              alert("Data saved successfully.")
-            } else {
-              throw new Error(result.error)
-            }
+              alert("Saved successfully.")
+            } else throw new Error(result.error)
           } catch (e) {
             alert("Save failed: " + e.message)
           } finally {
@@ -743,40 +861,46 @@
           const cleanUrl = scriptUrl.trim()
           localStorage.setItem("google_script_url", cleanUrl)
           loadFromSheet(cleanUrl)
-          setIsSettingsOpen(false)
+          setIsSettingsOpen(false) // Do NOT close modal if only connecting? No, user might want to adjust toggles.
+          // Actually, let's keep modal open or just confirm connection.
+          // For better UX, let's just show status in modal or close it if success.
+          // Here I'll close it for simplicity as per request context "Config Web App URL".
         }
 
-        // --- Handlers (Project, Data, Resize, Drag) ---
-        const updateActiveProject = (newData) => {
+        // --- Data Logic (Shortened for brevity as logic is same) ---
+        const updateActiveProject = (newData) =>
           setProjects((prev) =>
             prev.map((p) =>
               p.id === activeProjectId ? { ...p, ...newData } : p
             )
           )
-        }
         const handleCreateProject = () => {
           const name = prompt("Project Name:")
-          if (!name) return
-          const newProj = { ...initialProject, id: "proj-" + Date.now(), name }
-          setProjects([...projects, newProj])
-          setActiveProjectId(newProj.id)
+          if (name) {
+            const newProj = {
+              ...initialProject,
+              id: "proj-" + Date.now(),
+              name,
+            }
+            setProjects([...projects, newProj])
+            setActiveProjectId(newProj.id)
+          }
         }
         const handleDeleteProject = () => {
           if (projects.length <= 1) return alert("Cannot delete last project")
-          if (confirm("Delete project?")) {
+          if (confirm("Delete?")) {
             const filtered = projects.filter((p) => p.id !== activeProjectId)
             setProjects(filtered)
             setActiveProjectId(filtered[0].id)
           }
         }
-
         const handleTaskNameChange = (id, val) =>
           updateActiveProject({
             tasks: activeProject.tasks.map((t) =>
               t.id === id ? { ...t, name: val } : t
             ),
           })
-        const toggleSlot = (taskId, colId) => {
+        const toggleSlot = (taskId, colId) =>
           updateActiveProject({
             tasks: activeProject.tasks.map((t) =>
               t.id === taskId
@@ -789,18 +913,20 @@
                 : t
             ),
           })
-        }
-        const addTask = () => {
-          const maxId = activeProject.tasks.length
-            ? Math.max(...activeProject.tasks.map((t) => t.id))
-            : 0
+        const addTask = () =>
           updateActiveProject({
             tasks: [
               ...activeProject.tasks,
-              { id: maxId + 1, name: "New Task", activeSlots: [] },
+              {
+                id:
+                  (activeProject.tasks.length
+                    ? Math.max(...activeProject.tasks.map((t) => t.id))
+                    : 0) + 1,
+                name: "New Task",
+                activeSlots: [],
+              },
             ],
           })
-        }
         const deleteTask = (id) =>
           updateActiveProject({
             tasks: activeProject.tasks.filter((t) => t.id !== id),
@@ -816,7 +942,7 @@
             weekLabels: { ...activeProject.weekLabels, [wId]: val },
           })
         const deleteColumn = (colId) => {
-          if (confirm("Delete column?")) {
+          if (confirm("Delete column?"))
             updateActiveProject({
               columns: activeProject.columns.filter((c) => c.id !== colId),
               tasks: activeProject.tasks.map((t) => ({
@@ -824,9 +950,9 @@
                 activeSlots: t.activeSlots.filter((x) => x !== colId),
               })),
             })
-          }
         }
 
+        // --- Resize & Drag ---
         const startResizing = () => {
           isResizing.current = true
           document.body.style.cursor = "col-resize"
@@ -871,23 +997,40 @@
           })
           return g
         }, [activeProject.columns])
-        const gripColWidth = 36
 
-        // --- Render ---
+        // --- Dynamic Styles based on Compact Mode ---
+        const styles = {
+          rowHeight: isCompact ? "h-7" : "h-10",
+          headerHeight: isCompact ? "h-7" : "h-10",
+          cellPadding: isCompact ? "p-0" : "p-1",
+          fontSize: isCompact ? "text-[10px]" : "text-xs",
+          inputFontSize: isCompact ? "text-[9px]" : "text-[11px]",
+          iconSize: isCompact ? 14 : 16,
+          headerText: isCompact ? "text-[10px]" : "text-xs",
+          topBarPadding: isCompact ? "py-1.5" : "py-2.5",
+          gripWidth: isCompact ? 36 : 40,
+        }
+
         return (
-          <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+          <div
+            className={`min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-200 ${
+              isCompact ? "text-xs" : "text-sm"
+            }`}
+          >
             {isLoading && (
               <div className="loading-overlay">
                 <div className="spinner mb-4"></div>
-                <div className="text-sm font-medium text-slate-600">
-                  Syncing Data...
+                <div className="text-sm font-medium text-slate-600 dark:text-slate-300">
+                  Syncing...
                 </div>
               </div>
             )}
 
-            <div className="w-full bg-white shadow-sm border-b border-slate-200 sticky top-0 z-40">
-              {/* Top Toolbar (Dark Corporate Style - Compact) */}
-              <div className="bg-slate-900 text-slate-100 px-4 py-1.5 flex items-center justify-between text-xs">
+            <div className="w-full bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700 sticky top-0 z-40 transition-colors duration-300">
+              {/* Top Toolbar */}
+              <div
+                className={`bg-slate-900 dark:bg-black text-slate-100 px-4 ${styles.topBarPadding} flex items-center justify-between text-xs`}
+              >
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
                     <span className="text-slate-400 uppercase tracking-wider font-bold">
@@ -896,7 +1039,7 @@
                     <select
                       value={activeProjectId}
                       onChange={(e) => setActiveProjectId(e.target.value)}
-                      className="bg-slate-800 text-white px-2 py-0.5 rounded border border-slate-700 outline-none focus:border-blue-500 hover:bg-slate-700 transition-colors cursor-pointer text-xs"
+                      className="bg-slate-800 text-white px-2 py-0.5 rounded border border-slate-700 outline-none focus:border-blue-500 hover:bg-slate-700 cursor-pointer text-xs"
                     >
                       {projects.map((p) => (
                         <option key={p.id} value={p.id}>
@@ -915,18 +1058,16 @@
                   <div className="h-3 w-px bg-slate-700"></div>
                   <div className="flex items-center gap-1.5 text-slate-400">
                     <SheetIcon connected={isConnected} />
-                    <span>{isConnected ? "DB Connected" : "Local Mode"}</span>
+                    <span>{isConnected ? "Connected" : "Local"}</span>
                   </div>
                 </div>
-
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setIsSettingsOpen(true)}
                     className="flex items-center gap-1 text-slate-300 hover:text-white transition-colors"
-                    title="Database Settings"
                   >
                     <SettingsIcon />{" "}
-                    <span className="hidden sm:inline">Config</span>
+                    <span className="hidden sm:inline">Settings</span>
                   </button>
                   <button
                     onClick={saveToSheet}
@@ -944,10 +1085,14 @@
                 </div>
               </div>
 
-              {/* Title & Tools Header (Compact) */}
-              <div className="px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              {/* Title & Tools */}
+              <div
+                className={`px-4 ${
+                  isCompact ? "py-2" : "py-3"
+                } flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-800`}
+              >
                 <div className="flex items-center gap-3">
-                  <div className="p-1.5 rounded bg-slate-100 border border-slate-200 text-slate-700">
+                  <div className="p-1.5 rounded bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300">
                     <CalendarIcon />
                   </div>
                   <div className="flex flex-col">
@@ -956,23 +1101,24 @@
                       onChange={(e) =>
                         updateActiveProject({ name: e.target.value })
                       }
-                      className="text-lg font-bold text-slate-800 bg-transparent border-none outline-none focus:ring-0 p-0 placeholder-slate-300 h-6"
+                      className={`font-bold text-slate-800 dark:text-white bg-transparent border-none outline-none focus:ring-0 p-0 placeholder-slate-300 ${
+                        isCompact ? "text-lg h-6" : "text-xl h-7"
+                      }`}
                       placeholder="Untitled Project"
                     />
-                    <span className="text-[10px] text-slate-500">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">
                       Timeline Dashboard Manager
                     </span>
                   </div>
                 </div>
 
-                {/* Navigation Tabs (Compact) */}
-                <div className="flex p-0.5 bg-slate-100 rounded border border-slate-200">
+                <div className="flex p-0.5 bg-slate-100 dark:bg-slate-700 rounded border border-slate-200 dark:border-slate-600">
                   <button
                     onClick={() => setView("timeline")}
                     className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
                       view === "timeline"
-                        ? "bg-white text-slate-800 shadow-sm"
-                        : "text-slate-500 hover:text-slate-700"
+                        ? "bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm"
+                        : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
                     }`}
                   >
                     <LayoutIcon /> Timeline
@@ -981,8 +1127,8 @@
                     onClick={() => setView("dashboard")}
                     className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
                       view === "dashboard"
-                        ? "bg-white text-blue-700 shadow-sm"
-                        : "text-slate-500 hover:text-slate-700"
+                        ? "bg-white dark:bg-slate-600 text-blue-700 dark:text-blue-400 shadow-sm"
+                        : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
                     }`}
                   >
                     <BarChartIcon /> Dashboard
@@ -993,14 +1139,14 @@
                   <div className="flex items-center gap-2">
                     <button
                       onClick={handleDeleteProject}
-                      className="px-2 py-1 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors text-xs font-medium border border-transparent hover:border-red-100 flex items-center gap-1"
+                      className="px-2 py-1 text-slate-500 dark:text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors text-xs font-medium border border-transparent hover:border-red-100 flex items-center gap-1"
                     >
                       <TrashIcon />{" "}
                       <span className="hidden sm:inline">Del</span>
                     </button>
                     <button
                       onClick={addTask}
-                      className="px-3 py-1 bg-blue-700 text-white hover:bg-blue-800 rounded shadow-sm text-xs font-medium transition-colors flex items-center gap-1.5 border border-blue-800"
+                      className="px-3 py-1 bg-blue-700 hover:bg-blue-800 text-white rounded shadow-sm text-xs font-medium transition-colors flex items-center gap-1.5 border border-blue-800"
                     >
                       <PlusIcon /> Add Task
                     </button>
@@ -1009,20 +1155,20 @@
               </div>
             </div>
 
-            {/* Content Switcher */}
+            {/* Content */}
             {view === "dashboard" ? (
-              <DashboardView project={activeProject} />
+              <DashboardView project={activeProject} isCompact={isCompact} />
             ) : (
-              /* Timeline View (Ultra Compact) */
               <div className="p-4">
-                <div className="bg-white border border-slate-300 rounded shadow-sm overflow-hidden">
+                <div className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded shadow-sm overflow-hidden transition-colors duration-300">
                   <div className="overflow-x-auto">
                     <table className="w-full border-collapse min-w-[1000px]">
                       <thead>
-                        {/* Header Row 1: Group Headers */}
-                        <tr className="bg-slate-50 border-b border-slate-300 text-slate-600 text-[10px] font-bold uppercase tracking-wider">
+                        <tr
+                          className={`bg-slate-50 dark:bg-slate-900 border-b border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 ${styles.headerText} font-bold uppercase tracking-wider`}
+                        >
                           <th
-                            className="p-1 border-r border-slate-300 bg-slate-50 sticky left-0 z-30 w-8"
+                            className={`p-1 border-r border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 sticky left-0 z-30 w-8`}
                             rowSpan="3"
                           ></th>
                           <th
@@ -1031,9 +1177,9 @@
                               width: `${sidebarWidth}px`,
                               minWidth: `${sidebarWidth}px`,
                               maxWidth: `${sidebarWidth}px`,
-                              left: `${gripColWidth}px`,
+                              left: `${styles.gripWidth}px`,
                             }}
-                            className="p-1.5 border-r border-slate-300 text-left sticky z-30 bg-slate-50 relative group"
+                            className={`p-1.5 border-r border-slate-300 dark:border-slate-700 text-left sticky z-30 bg-slate-50 dark:bg-slate-900 relative group`}
                             rowSpan="3"
                           >
                             <div className="flex justify-between items-center h-full px-1">
@@ -1047,7 +1193,7 @@
                           {Object.entries(weeks).map(([wId, cols]) => (
                             <th
                               key={wId}
-                              className="p-1 border-r border-slate-300 text-center bg-slate-100"
+                              className="p-1 border-r border-slate-300 dark:border-slate-700 text-center bg-slate-100 dark:bg-slate-800/50"
                               colSpan={cols.length}
                             >
                               <input
@@ -1055,50 +1201,47 @@
                                 onChange={(e) =>
                                   handleWeekLabelChange(wId, e.target.value)
                                 }
-                                className="w-full bg-transparent text-center outline-none focus:text-blue-700 uppercase tracking-widest text-slate-500 font-bold text-[10px]"
+                                className={`w-full bg-transparent text-center outline-none focus:text-blue-700 dark:focus:text-blue-400 uppercase tracking-widest text-slate-500 dark:text-slate-400 font-bold ${styles.headerText}`}
                               />
                             </th>
                           ))}
                           <th
-                            className="p-1 border-l border-slate-300 w-12 sticky right-0 bg-slate-50 z-20"
+                            className="p-1 border-l border-slate-300 dark:border-slate-700 w-12 sticky right-0 bg-slate-50 dark:bg-slate-900 z-20"
                             rowSpan="3"
                           >
                             Act
                           </th>
                         </tr>
-
-                        {/* Header Row 2: Days */}
-                        <tr className="bg-white border-b border-slate-300 text-slate-600 text-[9px] font-semibold uppercase">
+                        <tr
+                          className={`bg-white dark:bg-slate-800 border-b border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 ${styles.inputFontSize} font-semibold uppercase`}
+                        >
                           {activeProject.columns.map((c) => (
                             <th
                               key={`d-${c.id}`}
-                              className="p-1 border-r border-slate-200 text-center min-w-[60px] bg-slate-50"
+                              className="p-1 border-r border-slate-200 dark:border-slate-700 text-center min-w-[60px] bg-slate-50 dark:bg-slate-900/50"
                             >
                               {c.day}
                             </th>
                           ))}
                         </tr>
-
-                        {/* Header Row 3: Times (Editable) */}
-                        <tr className="bg-white border-b border-slate-300">
+                        <tr className="bg-white dark:bg-slate-800 border-b border-slate-300 dark:border-slate-700">
                           {activeProject.columns.map((c) => (
                             <th
                               key={`t-${c.id}`}
-                              className="p-0 border-r border-slate-200 h-7"
+                              className={`p-0 border-r border-slate-200 dark:border-slate-700 ${styles.headerHeight}`}
                             >
                               <input
                                 value={c.time}
                                 onChange={(e) =>
                                   handleTimeChange(c.id, e.target.value)
                                 }
-                                className="w-full h-full text-center bg-transparent outline-none text-[9px] text-slate-500 hover:text-slate-800 focus:bg-blue-50 focus:text-blue-800 transition-colors"
+                                className={`w-full h-full text-center bg-transparent outline-none text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:bg-blue-50 dark:focus:bg-slate-700 focus:text-blue-800 dark:focus:text-blue-300 transition-colors ${styles.inputFontSize}`}
                               />
                             </th>
                           ))}
                         </tr>
                       </thead>
-
-                      <tbody className="divide-y divide-slate-200">
+                      <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                         {activeProject.tasks.map((task, idx) => (
                           <tr
                             key={task.id}
@@ -1107,122 +1250,112 @@
                             onDragEnter={(e) => handleDragEnter(e, idx)}
                             onDragEnd={() => (dragItem.current = null)}
                             onDragOver={(e) => e.preventDefault()}
-                            className="group hover:bg-slate-50 transition-colors"
+                            className="group hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                           >
-                            {/* Drag Grip */}
-                            <td className="p-0 border-r border-slate-200 sticky left-0 z-20 bg-white group-hover:bg-slate-50 w-8">
-                              <div className="w-full h-8 flex justify-center items-center cursor-grab active:cursor-grabbing opacity-40 group-hover:opacity-100 transition-opacity">
+                            <td
+                              className={`p-0 border-r border-slate-200 dark:border-slate-700 sticky left-0 z-20 bg-white dark:bg-slate-800 group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 w-8`}
+                            >
+                              <div
+                                className={`${styles.rowHeight} w-full flex justify-center items-center cursor-grab active:cursor-grabbing opacity-40 group-hover:opacity-100 transition-opacity text-slate-400 dark:text-slate-500`}
+                              >
                                 <GripVerticalIcon />
                               </div>
                             </td>
-
-                            {/* Task Name */}
                             <td
                               style={{
                                 width: `${sidebarWidth}px`,
                                 minWidth: `${sidebarWidth}px`,
                                 maxWidth: `${sidebarWidth}px`,
-                                left: `${gripColWidth}px`,
+                                left: `${styles.gripWidth}px`,
                               }}
-                              className="p-0 border-r border-slate-200 sticky z-20 bg-white group-hover:bg-slate-50 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.05)]"
+                              className="p-0 border-r border-slate-200 dark:border-slate-700 sticky z-20 bg-white dark:bg-slate-800 group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 shadow-sm"
                             >
                               <input
                                 value={task.name}
                                 onChange={(e) =>
                                   handleTaskNameChange(task.id, e.target.value)
                                 }
-                                className="w-full h-8 px-3 bg-transparent outline-none text-xs text-slate-700 font-medium truncate placeholder-slate-300"
-                                placeholder="Enter task description..."
+                                className={`w-full ${styles.rowHeight} px-3 bg-transparent outline-none ${styles.fontSize} text-slate-700 dark:text-slate-200 font-medium truncate placeholder-slate-300 dark:placeholder-slate-600`}
+                                placeholder="Enter task..."
                               />
                             </td>
-
-                            {/* Timeline Slots */}
                             {activeProject.columns.map((c) => {
                               const isActive = task.activeSlots.includes(c.id)
                               return (
                                 <td
                                   key={`${task.id}-${c.id}`}
                                   onClick={() => toggleSlot(task.id, c.id)}
-                                  className={`border-r border-slate-200 cursor-pointer h-8 transition-all duration-150 relative
-                                                                    ${
-                                                                      isActive
-                                                                        ? "bg-blue-700 shadow-inner"
-                                                                        : "bg-transparent hover:bg-slate-100"
-                                                                    }
-                                                                `}
+                                  className={`border-r border-slate-200 dark:border-slate-700 cursor-pointer ${
+                                    styles.rowHeight
+                                  } transition-all duration-150 relative ${
+                                    isActive
+                                      ? "bg-blue-700 dark:bg-blue-600 shadow-inner"
+                                      : "bg-transparent hover:bg-slate-100 dark:hover:bg-slate-700"
+                                  }`}
                                 >
-                                  {/* Tooltip */}
                                   <div className="opacity-0 group-hover/cell:opacity-100 absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-1.5 py-0.5 bg-slate-800 text-white text-[9px] rounded pointer-events-none z-50 whitespace-nowrap hidden">
                                     {c.day} {c.time}
                                   </div>
                                 </td>
                               )
                             })}
-
-                            {/* Row Actions */}
-                            <td className="p-0 text-center sticky right-0 bg-white group-hover:bg-slate-50 border-l border-slate-200 z-20 w-12">
+                            <td className="p-0 text-center sticky right-0 bg-white dark:bg-slate-800 group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 border-l border-slate-200 dark:border-slate-700 z-20 w-12">
                               <button
                                 onClick={() => deleteTask(task.id)}
-                                className="w-6 h-6 inline-flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                                title="Delete Task"
+                                className="w-6 h-6 inline-flex items-center justify-center text-slate-300 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
                               >
                                 <TrashIcon />
                               </button>
                             </td>
                           </tr>
                         ))}
-
                         {activeProject.tasks.length === 0 && (
                           <tr>
                             <td
                               colSpan={activeProject.columns.length + 3}
-                              className="p-8 text-center text-slate-400 bg-slate-50 border-dashed border-2 border-slate-200 m-4 rounded-lg text-xs"
+                              className="p-8 text-center text-slate-400 bg-slate-50 dark:bg-slate-800/30 border-dashed border-2 border-slate-200 dark:border-slate-700 m-4 rounded-lg text-xs"
                             >
-                              No tasks available. Click "Add Task" to start
-                              planning.
+                              No tasks available.
                             </td>
                           </tr>
                         )}
                       </tbody>
-
                       <tfoot>
-                        <tr className="bg-slate-50 border-t border-slate-300">
+                        <tr className="bg-slate-50 dark:bg-slate-900 border-t border-slate-300 dark:border-slate-700">
                           <td
                             colSpan="2"
-                            className="p-1 sticky left-0 z-20 bg-slate-50 text-right text-[9px] font-bold text-slate-400 uppercase tracking-widest pr-3 border-r border-slate-200 h-7"
+                            className={`p-1 sticky left-0 z-20 bg-slate-50 dark:bg-slate-900 text-right ${styles.inputFontSize} font-bold text-slate-400 uppercase tracking-widest pr-3 border-r border-slate-200 dark:border-slate-700 ${styles.headerHeight} align-middle`}
                           >
                             Remove:
                           </td>
                           {activeProject.columns.map((c) => (
                             <td
                               key={`del-${c.id}`}
-                              className="p-0 text-center border-r border-slate-200 h-7 align-middle"
+                              className={`p-0 text-center border-r border-slate-200 dark:border-slate-700 ${styles.headerHeight} align-middle`}
                             >
                               <button
                                 onClick={() => deleteColumn(c.id)}
-                                className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors inline-flex"
-                                title="Delete col"
+                                className="p-1 text-slate-300 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors inline-flex"
                               >
                                 <XCircleIcon />
                               </button>
                             </td>
                           ))}
-                          <td className="p-1 sticky right-0 bg-slate-50 border-l border-slate-200"></td>
+                          <td className="p-1 sticky right-0 bg-slate-50 dark:bg-slate-900 border-l border-slate-200 dark:border-slate-700"></td>
                         </tr>
                       </tfoot>
                     </table>
                   </div>
                 </div>
 
-                {/* Footer Info (Compact) */}
-                <div className="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center text-[10px] text-slate-500 gap-3">
+                <div className="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center text-[10px] text-slate-500 dark:text-slate-400 gap-3">
                   <div className="flex gap-4">
                     <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 bg-blue-700 border border-blue-800 rounded-sm block shadow-sm"></span>
+                      <span className="w-2.5 h-2.5 bg-blue-700 dark:bg-blue-600 border border-blue-800 dark:border-blue-500 rounded-sm block shadow-sm"></span>
                       <span>Scheduled</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 bg-white border border-slate-300 rounded-sm block shadow-sm"></span>
+                      <span className="w-2.5 h-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-sm block shadow-sm"></span>
                       <span>Available</span>
                     </div>
                   </div>
@@ -1231,11 +1364,11 @@
                     <span
                       className={
                         isConnected
-                          ? "text-emerald-600 font-semibold"
-                          : "text-amber-600 font-semibold"
+                          ? "text-emerald-600 dark:text-emerald-400 font-semibold"
+                          : "text-amber-600 dark:text-amber-400 font-semibold"
                       }
                     >
-                      {isConnected ? "Online DB" : "Local"}
+                      {isConnected ? "Online DB" : "Local Mode"}
                     </span>
                   </div>
                 </div>
@@ -1246,34 +1379,55 @@
             <Modal
               isOpen={isSettingsOpen}
               onClose={() => setIsSettingsOpen(false)}
-              title="Connection Settings"
+              title="Dashboard Settings"
             >
-              <div className="space-y-3">
-                <div className="p-2.5 bg-blue-50 border border-blue-100 rounded text-xs text-blue-800">
-                  <strong>Google Sheets Integration:</strong> Connect dashboard
-                  to Google Sheet for sync.
+              <div className="space-y-4">
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded text-xs text-blue-800 dark:text-blue-200">
+                  <strong>Google Sheets Integration</strong>
+                  <br />
+                  Sync data with your Google Sheet for collaboration.
                 </div>
+
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase tracking-wide">
                     Web App URL
                   </label>
-                  <input
-                    type="text"
-                    value={scriptUrl}
-                    onChange={(e) => setScriptUrl(e.target.value)}
-                    placeholder="https://script.google.com/macros/s/.../exec"
-                    className="w-full p-1.5 border border-slate-300 rounded text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-shadow"
-                  />
-                  <p className="text-[10px] text-slate-500 mt-0.5">
-                    Paste URL from Google Apps Script deployment.
-                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={scriptUrl}
+                      onChange={(e) => setScriptUrl(e.target.value)}
+                      placeholder="https://script.google.com/..."
+                      className="flex-1 p-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 rounded text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                    />
+                    <button
+                      onClick={handleConnect}
+                      className="px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-bold hover:bg-blue-700 transition-colors"
+                    >
+                      Connect
+                    </button>
+                  </div>
                 </div>
-                <button
-                  onClick={handleConnect}
-                  className="w-full py-2 bg-slate-800 text-white rounded font-medium hover:bg-slate-700 transition-colors shadow-sm text-xs"
-                >
-                  Save & Connect
-                </button>
+
+                <div className="border-t border-slate-200 dark:border-slate-700 my-4"></div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wide">
+                    Appearance
+                  </label>
+                  <ToggleSwitch
+                    label="Dark Mode"
+                    checked={isDarkMode}
+                    onChange={setIsDarkMode}
+                    icon={<MoonIcon />}
+                  />
+                  <ToggleSwitch
+                    label="Compact Mode"
+                    checked={isCompact}
+                    onChange={setIsCompact}
+                    icon={<LayoutIcon />}
+                  />
+                </div>
               </div>
             </Modal>
           </div>
