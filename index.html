@@ -3,17 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Project Timeline (Customizable)</title>
+    <title>Project Suite</title>
 
     <!-- Tailwind CSS with Config -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
-        darkMode: "class", // Enable class-based dark mode
+        darkMode: "class",
         theme: {
           extend: {
             fontFamily: {
               sans: ["Sarabun", "sans-serif"],
+            },
+            colors: {
+              brand: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                900: "#0c4a6e",
+              },
             },
           },
         },
@@ -40,7 +50,11 @@
     />
 
     <style>
-      /* Base styles handled by Tailwind, adding specific overrides */
+      body {
+        font-family: "Sarabun", sans-serif;
+        background-color: #f8fafc;
+        font-size: 13px;
+      }
       .resizer {
         position: absolute;
         right: 0;
@@ -53,7 +67,7 @@
       }
       .resizer:hover,
       .resizing {
-        background-color: #3b82f6;
+        background-color: #0ea5e9;
       }
       .cursor-grab {
         cursor: grab;
@@ -62,22 +76,20 @@
         cursor: grabbing;
       }
 
-      /* Custom Scrollbar for Dark Mode compatibility */
       ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
       }
       ::-webkit-scrollbar-track {
         background: transparent;
       }
       ::-webkit-scrollbar-thumb {
         background: #cbd5e1;
-        border-radius: 4px;
+        border-radius: 3px;
       }
       ::-webkit-scrollbar-thumb:hover {
         background: #94a3b8;
       }
-
       .dark ::-webkit-scrollbar-thumb {
         background: #475569;
       }
@@ -85,7 +97,6 @@
         background: #64748b;
       }
 
-      /* Loading Overlay */
       .loading-overlay {
         position: fixed;
         top: 0;
@@ -102,10 +113,9 @@
       .dark .loading-overlay {
         background: rgba(15, 23, 42, 0.9);
       }
-
       .spinner {
         border: 3px solid #e2e8f0;
-        border-top: 3px solid #3b82f6;
+        border-top: 3px solid #0ea5e9;
         border-radius: 50%;
         width: 30px;
         height: 30px;
@@ -113,7 +123,7 @@
       }
       .dark .spinner {
         border-color: #334155;
-        border-top-color: #60a5fa;
+        border-top-color: #38bdf8;
       }
       @keyframes spin {
         0% {
@@ -123,46 +133,41 @@
           transform: rotate(360deg);
         }
       }
-
-      /* Animations */
       .animate-fade-in {
-        animation: fadeIn 0.5s ease-out;
+        animation: fadeIn 0.3s ease-out;
       }
       @keyframes fadeIn {
         from {
           opacity: 0;
-          transform: translateY(10px);
+          transform: translateY(5px);
         }
         to {
           opacity: 1;
           transform: translateY(0);
         }
       }
-      .bar-grow {
-        animation: barGrow 1s ease-out forwards;
-        transform-origin: bottom;
-        transform: scaleY(0);
-      }
-      @keyframes barGrow {
-        to {
-          transform: scaleY(1);
-        }
-      }
 
-      /* Toggle Switch */
       .toggle-checkbox:checked {
         right: 0;
-        border-color: #3b82f6;
+        border-color: #0ea5e9;
       }
       .toggle-checkbox:checked + .toggle-label {
-        background-color: #3b82f6;
+        background-color: #0ea5e9;
+      }
+
+      .custom-checkbox input:checked + div {
+        background-color: #10b981;
+        border-color: #10b981;
+      }
+      .custom-checkbox input:checked + div svg {
+        display: block;
       }
     </style>
   </head>
   <body
-    class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-300"
+    class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-300 overflow-hidden h-screen flex flex-col"
   >
-    <div id="root"></div>
+    <div id="root" class="h-full flex flex-col"></div>
 
     <script type="text/babel">
       const { useState, useRef, useEffect, useMemo, useCallback } = React
@@ -277,8 +282,8 @@
         connected ? (
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="12"
-            height="12"
+            width="14"
+            height="14"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -296,8 +301,8 @@
         ) : (
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="12"
-            height="12"
+            width="14"
+            height="14"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -324,7 +329,7 @@
           strokeLinejoin="round"
         >
           <circle cx="12" cy="12" r="3" />
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
         </svg>
       )
       const LayoutIcon = () => (
@@ -376,27 +381,72 @@
           <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
         </svg>
       )
-      const SunIcon = () => (
+      const ListIcon = () => (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
+          width="14"
+          height="14"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2" />
-          <path d="M12 20v2" />
-          <path d="m4.93 4.93 1.41 1.41" />
-          <path d="m17.66 17.66 1.41 1.41" />
-          <path d="M2 12h2" />
-          <path d="M20 12h2" />
-          <path d="m6.34 17.66-1.41 1.41" />
-          <path d="m19.07 4.93-1.41 1.41" />
+          <line x1="8" x2="21" y1="6" y2="6" />
+          <line x1="8" x2="21" y1="12" y2="12" />
+          <line x1="8" x2="21" y1="18" y2="18" />
+          <line x1="3" x2="3.01" y1="6" y2="6" />
+          <line x1="3" x2="3.01" y1="12" y2="12" />
+          <line x1="3" x2="3.01" y1="18" y2="18" />
+        </svg>
+      )
+      const CheckIcon = () => (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="text-white"
+        >
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      )
+      const ClockIcon = () => (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+      )
+      const PieChartIcon = () => (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+          <path d="M22 12A10 10 0 0 0 12 2v10z" />
         </svg>
       )
 
@@ -426,15 +476,51 @@
 
       const defaultTasks = [{ id: 1, name: "BKK to CMI", activeSlots: [] }]
       const defaultWeekLabels = { w1: "Week 1", w2: "Week 2" }
-      const initialProject = {
-        id: "default",
-        name: "Default Project",
-        columns: generateInitialColumns(),
-        weekLabels: defaultWeekLabels,
-        tasks: defaultTasks,
+
+      // --- Data Structure ---
+      const initialData = {
+        timeline: {
+          projects: [
+            {
+              id: "default-timeline",
+              name: "Main Timeline",
+              columns: generateInitialColumns(),
+              weekLabels: defaultWeekLabels,
+              tasks: defaultTasks,
+            },
+          ],
+          activeId: "default-timeline",
+        },
+        todo: {
+          projects: [
+            {
+              id: "default-todo",
+              name: "My Tasks",
+              todos: [
+                {
+                  id: 1,
+                  text: "Create project structure",
+                  completed: true,
+                  startTime: "",
+                  completedAt: new Date().toISOString(),
+                  createdAt: new Date().toISOString(),
+                },
+                {
+                  id: 2,
+                  text: "Define timeline tasks",
+                  completed: false,
+                  startTime: "",
+                  completedAt: null,
+                  createdAt: new Date().toISOString(),
+                },
+              ],
+            },
+          ],
+          activeId: "default-todo",
+        },
       }
 
-      // --- Toggle Switch Component ---
+      // --- Shared Components ---
       const ToggleSwitch = ({ label, checked, onChange, icon }) => (
         <div className="flex items-center justify-between py-2">
           <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
@@ -444,11 +530,9 @@
           <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
             <input
               type="checkbox"
-              name="toggle"
-              id={`toggle-${label}`}
               checked={checked}
               onChange={(e) => onChange(e.target.checked)}
-              className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-slate-300 dark:border-slate-600 transition-all duration-300 checked:right-0 checked:border-blue-500"
+              className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-slate-300 dark:border-slate-600 transition-all duration-300 checked:right-0 checked:border-brand-500"
               style={{
                 top: 0,
                 left: checked ? "auto" : 0,
@@ -456,16 +540,14 @@
               }}
             />
             <label
-              htmlFor={`toggle-${label}`}
               className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer transition-colors duration-300 ${
-                checked ? "bg-blue-500" : "bg-slate-300 dark:bg-slate-600"
+                checked ? "bg-brand-500" : "bg-slate-300 dark:bg-slate-600"
               }`}
             ></label>
           </div>
         </div>
       )
 
-      // --- Modal Component ---
       const Modal = ({ isOpen, onClose, title, children }) => {
         if (!isOpen) return null
         return (
@@ -496,463 +578,26 @@
         )
       }
 
-      // --- Dashboard Component ---
-      const DashboardView = ({ project, isCompact }) => {
-        // Calculations
-        const totalTasks = project.tasks.length
-        const totalSlots = project.tasks.reduce(
-          (acc, t) => acc + t.activeSlots.length,
-          0
-        )
-        const dayCounts = {}
-        const weekCounts = {}
+      // --- SUB-APPS ---
 
-        project.tasks.forEach((t) => {
-          t.activeSlots.forEach((slotId) => {
-            const col = project.columns.find((c) => c.id === slotId)
-            if (col) {
-              const d = col.day.toUpperCase()
-              dayCounts[d] = (dayCounts[d] || 0) + 1
-              const w = col.weekId
-              weekCounts[w] = (weekCounts[w] || 0) + 1
-            }
-          })
-        })
+      // 1. TIMELINE APP
+      const TimelineApp = ({ project, updateProject, isCompact }) => {
+        const [viewMode, setViewMode] = useState("table") // 'table' | 'dashboard'
 
-        let maxCount = 0
-        let busiestDay = "-"
-        Object.entries(dayCounts).forEach(([day, count]) => {
-          if (count > maxCount) {
-            maxCount = count
-            busiestDay = day
-          }
-        })
-
-        const topTasks = [...project.tasks]
-          .sort((a, b) => b.activeSlots.length - a.activeSlots.length)
-          .slice(0, 5)
-        const daysOrder = ["MON", "TUE", "WED", "THU", "FRI"]
-        const maxDayVal = Math.max(...Object.values(dayCounts), 1)
-        const weekKeys = Object.keys(project.weekLabels)
-        const totalWeekSlots =
-          Object.values(weekCounts).reduce((a, b) => a + b, 0) || 1
-
-        const cardPadding = isCompact ? "p-3" : "p-5"
-        const cardHeight = isCompact ? "h-40" : "h-52"
-
-        return (
-          <div className="p-4 animate-fade-in bg-slate-50 dark:bg-slate-900/50 min-h-full">
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-              {[
-                {
-                  label: "Total Tasks",
-                  val: totalTasks,
-                  sub: "Active items",
-                  color: "text-slate-800 dark:text-white",
-                },
-                {
-                  label: "Total Work Slots",
-                  val: totalSlots,
-                  sub: "Scheduled blocks",
-                  color: "text-blue-700 dark:text-blue-400",
-                },
-                {
-                  label: "Busiest Day",
-                  val: busiestDay,
-                  sub: `${maxCount} slots`,
-                  color: "text-slate-800 dark:text-white",
-                },
-                {
-                  label: "Completion",
-                  val: `${
-                    totalSlots > 0
-                      ? Math.min(
-                          100,
-                          Math.round((totalSlots / (totalTasks * 5)) * 100)
-                        )
-                      : 0
-                  }%`,
-                  sub: "Est. capacity",
-                  color: "text-emerald-600 dark:text-emerald-400",
-                },
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  className={`bg-white dark:bg-slate-800 ${cardPadding} rounded border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center`}
-                >
-                  <div className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">
-                    {item.label}
-                  </div>
-                  <div className={`text-2xl font-bold ${item.color}`}>
-                    {item.val}
-                  </div>
-                  <div className="text-[10px] text-slate-400">{item.sub}</div>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              {/* Chart 1 */}
-              <div
-                className={`bg-white dark:bg-slate-800 ${cardPadding} rounded border border-slate-200 dark:border-slate-700 shadow-sm lg:col-span-2`}
-              >
-                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3 border-b border-slate-100 dark:border-slate-700 pb-2">
-                  Daily Workload
-                </h3>
-                <div
-                  className={`${cardHeight} flex items-end justify-between gap-2 px-2 pb-2 border-l border-b border-slate-200 dark:border-slate-700`}
-                >
-                  {daysOrder.map((day) => {
-                    const count = dayCounts[day] || 0
-                    const heightPercent = (count / maxDayVal) * 100
-                    return (
-                      <div
-                        key={day}
-                        className="flex flex-col items-center flex-1 h-full justify-end group"
-                      >
-                        <div className="relative w-full max-w-[40px] bg-blue-50 dark:bg-blue-900/30 rounded-t-sm overflow-hidden h-full flex items-end">
-                          <div
-                            className="w-full bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-400 transition-all duration-500 bar-grow relative"
-                            style={{ height: `${heightPercent}%` }}
-                          >
-                            <div className="absolute -top-6 w-full text-center text-[10px] font-bold text-blue-700 dark:text-blue-300 opacity-0 group-hover:opacity-100 transition-opacity">
-                              {count}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="mt-2 text-[10px] font-bold text-slate-500 dark:text-slate-400">
-                          {day}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Chart 2 */}
-              <div
-                className={`bg-white dark:bg-slate-800 ${cardPadding} rounded border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col`}
-              >
-                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3 border-b border-slate-100 dark:border-slate-700 pb-2">
-                  Weekly Split
-                </h3>
-                <div className="flex-1 flex flex-col justify-center items-center">
-                  <div
-                    className="relative w-32 h-32 rounded-full flex items-center justify-center border-4 border-slate-50 dark:border-slate-700"
-                    style={{
-                      background: `conic-gradient(#2563eb 0% ${
-                        ((weekCounts[weekKeys[0]] || 0) / totalWeekSlots) * 100
-                      }%, #94a3b8 ${
-                        ((weekCounts[weekKeys[0]] || 0) / totalWeekSlots) * 100
-                      }% 100%)`,
-                    }}
-                  >
-                    <div className="absolute w-20 h-20 bg-white dark:bg-slate-800 rounded-full flex flex-col items-center justify-center">
-                      <span className="text-xl font-bold text-slate-800 dark:text-white">
-                        {totalWeekSlots}
-                      </span>
-                      <span className="text-[9px] text-slate-400 uppercase">
-                        Slots
-                      </span>
-                    </div>
-                  </div>
-                  <div className="mt-4 w-full space-y-2">
-                    {weekKeys.map((wk, idx) => (
-                      <div
-                        key={wk}
-                        className="flex justify-between items-center text-xs"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`w-2 h-2 rounded-full ${
-                              idx === 0 ? "bg-blue-600" : "bg-slate-400"
-                            }`}
-                          ></span>
-                          <span className="text-slate-600 dark:text-slate-400 font-medium truncate max-w-[100px]">
-                            {project.weekLabels[wk] || wk}
-                          </span>
-                        </div>
-                        <span className="font-bold text-slate-800 dark:text-slate-200">
-                          {weekCounts[wk] || 0}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Chart 3 */}
-              <div
-                className={`bg-white dark:bg-slate-800 ${cardPadding} rounded border border-slate-200 dark:border-slate-700 shadow-sm lg:col-span-3`}
-              >
-                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3 border-b border-slate-100 dark:border-slate-700 pb-2">
-                  Top Tasks
-                </h3>
-                <div className="space-y-3">
-                  {topTasks.map((task, idx) => (
-                    <div key={task.id} className="flex items-center gap-3">
-                      <div className="w-6 text-xs font-bold text-slate-400">
-                        #{idx + 1}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between mb-1">
-                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate">
-                            {task.name}
-                          </span>
-                          <span className="text-[10px] text-slate-500 font-medium">
-                            {task.activeSlots.length} slots
-                          </span>
-                        </div>
-                        <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5">
-                          <div
-                            className="bg-emerald-500 h-1.5 rounded-full"
-                            style={{
-                              width: `${
-                                (task.activeSlots.length /
-                                  (topTasks[0]?.activeSlots.length || 1)) *
-                                100
-                              }%`,
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      }
-
-      // --- Main App ---
-      const ProjectTimelineDashboard = () => {
-        // Data State
-        const [projects, setProjects] = useState([initialProject])
-        const [activeProjectId, setActiveProjectId] = useState("default")
-
-        // App State
-        const [view, setView] = useState("timeline")
-        const [scriptUrl, setScriptUrl] = useState("")
-        const [isConnected, setIsConnected] = useState(false)
-        const [isLoading, setIsLoading] = useState(false)
-        const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-        const [isSettingsOpen, setIsSettingsOpen] = useState(false)
         const [sidebarWidth, setSidebarWidth] = useState(250)
-
-        // Preference State
-        const [isDarkMode, setIsDarkMode] = useState(false)
-        const [isCompact, setIsCompact] = useState(true)
-
         const sidebarRef = useRef(null)
         const isResizing = useRef(false)
         const dragItem = useRef()
 
-        const activeProject = useMemo(
-          () => projects.find((p) => p.id === activeProjectId) || projects[0],
-          [projects, activeProjectId]
-        )
-
-        // --- Init & Load ---
-        useEffect(() => {
-          // Load Preferences
-          const savedDark = localStorage.getItem("pref_dark_mode") === "true"
-          setIsDarkMode(savedDark)
-          if (savedDark) document.documentElement.classList.add("dark")
-
-          const savedCompact = localStorage.getItem("pref_compact_mode")
-          if (savedCompact !== null) setIsCompact(savedCompact === "true")
-
-          // Load Data
-          const savedUrl = localStorage.getItem("google_script_url")
-          if (savedUrl) {
-            setScriptUrl(savedUrl)
-            loadFromSheet(savedUrl)
-          } else {
-            const localBackup = localStorage.getItem("timeline_local_backup")
-            if (localBackup) {
-              const data = JSON.parse(localBackup)
-              setProjects(data.projects)
-              setActiveProjectId(data.activeProjectId)
-              setHasUnsavedChanges(true)
-            }
-          }
-        }, [])
-
-        // --- Effect: Preferences ---
-        useEffect(() => {
-          if (isDarkMode) document.documentElement.classList.add("dark")
-          else document.documentElement.classList.remove("dark")
-          localStorage.setItem("pref_dark_mode", isDarkMode)
-        }, [isDarkMode])
-
-        useEffect(() => {
-          localStorage.setItem("pref_compact_mode", isCompact)
-        }, [isCompact])
-
-        // --- Auto Backup ---
-        useEffect(() => {
-          if (isLoading) return
-          const dataToSave = { projects, activeProjectId }
-          localStorage.setItem(
-            "timeline_local_backup",
-            JSON.stringify(dataToSave)
-          )
-          if (isConnected) setHasUnsavedChanges(true)
-        }, [projects, activeProjectId])
-
-        // --- API Handlers ---
-        const loadFromSheet = async (url) => {
-          if (!url) return
-          setIsLoading(true)
-          try {
-            const cleanUrl = url.trim()
-            const res = await fetch(cleanUrl)
-            const data = await res.json()
-            if (data.projects && Array.isArray(data.projects)) {
-              setProjects(data.projects)
-              if (data.activeProjectId) setActiveProjectId(data.activeProjectId)
-              setIsConnected(true)
-              setHasUnsavedChanges(false)
-            } else if (data.empty) setIsConnected(true)
-          } catch (e) {
-            console.error(e)
-            alert("Connection failed!")
-            setIsConnected(false)
-          } finally {
-            setIsLoading(false)
-          }
-        }
-
-        const saveToSheet = async () => {
-          if (!scriptUrl) {
-            setIsSettingsOpen(true)
-            return
-          }
-          setIsLoading(true)
-          const dataToSave = {
-            projects,
-            activeProjectId,
-            lastUpdated: new Date().toISOString(),
-          }
-          try {
-            const cleanUrl = scriptUrl.trim()
-            const res = await fetch(cleanUrl, {
-              method: "POST",
-              redirect: "follow",
-              headers: { "Content-Type": "text/plain;charset=utf-8" },
-              body: JSON.stringify(dataToSave),
-            })
-            const result = await res.json()
-            if (result.result === "success") {
-              setHasUnsavedChanges(false)
-              alert("Saved successfully.")
-            } else throw new Error(result.error)
-          } catch (e) {
-            alert("Save failed: " + e.message)
-          } finally {
-            setIsLoading(false)
-          }
-        }
-
-        const handleConnect = () => {
-          if (!scriptUrl) return alert("Please enter a URL")
-          const cleanUrl = scriptUrl.trim()
-          localStorage.setItem("google_script_url", cleanUrl)
-          loadFromSheet(cleanUrl)
-          setIsSettingsOpen(false) // Do NOT close modal if only connecting? No, user might want to adjust toggles.
-          // Actually, let's keep modal open or just confirm connection.
-          // For better UX, let's just show status in modal or close it if success.
-          // Here I'll close it for simplicity as per request context "Config Web App URL".
-        }
-
-        // --- Data Logic (Shortened for brevity as logic is same) ---
-        const updateActiveProject = (newData) =>
-          setProjects((prev) =>
-            prev.map((p) =>
-              p.id === activeProjectId ? { ...p, ...newData } : p
-            )
-          )
-        const handleCreateProject = () => {
-          const name = prompt("Project Name:")
-          if (name) {
-            const newProj = {
-              ...initialProject,
-              id: "proj-" + Date.now(),
-              name,
-            }
-            setProjects([...projects, newProj])
-            setActiveProjectId(newProj.id)
-          }
-        }
-        const handleDeleteProject = () => {
-          if (projects.length <= 1) return alert("Cannot delete last project")
-          if (confirm("Delete?")) {
-            const filtered = projects.filter((p) => p.id !== activeProjectId)
-            setProjects(filtered)
-            setActiveProjectId(filtered[0].id)
-          }
-        }
-        const handleTaskNameChange = (id, val) =>
-          updateActiveProject({
-            tasks: activeProject.tasks.map((t) =>
-              t.id === id ? { ...t, name: val } : t
-            ),
+        const weeks = useMemo(() => {
+          const g = {}
+          project.columns.forEach((c) => {
+            if (!g[c.weekId]) g[c.weekId] = []
+            g[c.weekId].push(c)
           })
-        const toggleSlot = (taskId, colId) =>
-          updateActiveProject({
-            tasks: activeProject.tasks.map((t) =>
-              t.id === taskId
-                ? {
-                    ...t,
-                    activeSlots: t.activeSlots.includes(colId)
-                      ? t.activeSlots.filter((x) => x !== colId)
-                      : [...t.activeSlots, colId],
-                  }
-                : t
-            ),
-          })
-        const addTask = () =>
-          updateActiveProject({
-            tasks: [
-              ...activeProject.tasks,
-              {
-                id:
-                  (activeProject.tasks.length
-                    ? Math.max(...activeProject.tasks.map((t) => t.id))
-                    : 0) + 1,
-                name: "New Task",
-                activeSlots: [],
-              },
-            ],
-          })
-        const deleteTask = (id) =>
-          updateActiveProject({
-            tasks: activeProject.tasks.filter((t) => t.id !== id),
-          })
-        const handleTimeChange = (colId, val) =>
-          updateActiveProject({
-            columns: activeProject.columns.map((c) =>
-              c.id === colId ? { ...c, time: val } : c
-            ),
-          })
-        const handleWeekLabelChange = (wId, val) =>
-          updateActiveProject({
-            weekLabels: { ...activeProject.weekLabels, [wId]: val },
-          })
-        const deleteColumn = (colId) => {
-          if (confirm("Delete column?"))
-            updateActiveProject({
-              columns: activeProject.columns.filter((c) => c.id !== colId),
-              tasks: activeProject.tasks.map((t) => ({
-                ...t,
-                activeSlots: t.activeSlots.filter((x) => x !== colId),
-              })),
-            })
-        }
+          return g
+        }, [project.columns])
 
-        // --- Resize & Drag ---
         const startResizing = () => {
           isResizing.current = true
           document.body.style.cursor = "col-resize"
@@ -981,413 +626,1139 @@
         }
         const handleDragEnter = (e, index) => {
           if (dragItem.current === null || dragItem.current === index) return
-          const newTasks = [...activeProject.tasks]
+          const newTasks = [...project.tasks]
           const dragged = newTasks[dragItem.current]
           newTasks.splice(dragItem.current, 1)
           newTasks.splice(index, 0, dragged)
           dragItem.current = index
-          updateActiveProject({ tasks: newTasks })
+          updateProject({ tasks: newTasks })
         }
 
-        const weeks = useMemo(() => {
-          const g = {}
-          activeProject.columns.forEach((c) => {
-            if (!g[c.weekId]) g[c.weekId] = []
-            g[c.weekId].push(c)
+        const handleTaskNameChange = (id, val) =>
+          updateProject({
+            tasks: project.tasks.map((t) =>
+              t.id === id ? { ...t, name: val } : t
+            ),
           })
-          return g
-        }, [activeProject.columns])
+        const toggleSlot = (taskId, colId) =>
+          updateProject({
+            tasks: project.tasks.map((t) =>
+              t.id === taskId
+                ? {
+                    ...t,
+                    activeSlots: t.activeSlots.includes(colId)
+                      ? t.activeSlots.filter((x) => x !== colId)
+                      : [...t.activeSlots, colId],
+                  }
+                : t
+            ),
+          })
+        const addTask = () =>
+          updateProject({
+            tasks: [
+              ...project.tasks,
+              {
+                id:
+                  (project.tasks.length
+                    ? Math.max(...project.tasks.map((t) => t.id))
+                    : 0) + 1,
+                name: "New Task",
+                activeSlots: [],
+              },
+            ],
+          })
+        const deleteTask = (id) =>
+          updateProject({ tasks: project.tasks.filter((t) => t.id !== id) })
+        const handleTimeChange = (colId, val) =>
+          updateProject({
+            columns: project.columns.map((c) =>
+              c.id === colId ? { ...c, time: val } : c
+            ),
+          })
+        const handleWeekLabelChange = (wId, val) =>
+          updateProject({ weekLabels: { ...project.weekLabels, [wId]: val } })
+        const deleteColumn = (colId) => {
+          if (confirm("Delete column?"))
+            updateProject({
+              columns: project.columns.filter((c) => c.id !== colId),
+              tasks: project.tasks.map((t) => ({
+                ...t,
+                activeSlots: t.activeSlots.filter((x) => x !== colId),
+              })),
+            })
+        }
 
-        // --- Dynamic Styles based on Compact Mode ---
+        const DashboardContent = () => {
+          const totalTasks = project.tasks.length
+          const totalSlots = project.tasks.reduce(
+            (acc, t) => acc + t.activeSlots.length,
+            0
+          )
+          const dayCounts = {}
+          project.tasks.forEach((t) =>
+            t.activeSlots.forEach((sid) => {
+              const c = project.columns.find((x) => x.id === sid)
+              if (c)
+                dayCounts[c.day.toUpperCase()] =
+                  (dayCounts[c.day.toUpperCase()] || 0) + 1
+            })
+          )
+          let maxCount = 0
+          let busiestDay = "-"
+          Object.entries(dayCounts).forEach(([d, c]) => {
+            if (c > maxCount) {
+              maxCount = c
+              busiestDay = d
+            }
+          })
+          const cardPadding = isCompact ? "p-3" : "p-5"
+          const cardHeight = isCompact ? "h-40" : "h-52"
+          const daysOrder = ["MON", "TUE", "WED", "THU", "FRI"]
+          const maxDayVal = Math.max(...Object.values(dayCounts), 1)
+
+          return (
+            <div className="p-4 animate-fade-in space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                {[
+                  { l: "Tasks", v: totalTasks, s: "Active" },
+                  {
+                    l: "Workload",
+                    v: totalSlots,
+                    s: "Blocks",
+                    c: "text-brand-600",
+                  },
+                  { l: "Peak Day", v: busiestDay, s: `${maxCount} slots` },
+                  {
+                    l: "Progress",
+                    v: `${
+                      totalSlots > 0
+                        ? Math.min(
+                            100,
+                            Math.round((totalSlots / (totalTasks * 5)) * 100)
+                          )
+                        : 0
+                    }%`,
+                    s: "Est.",
+                    c: "text-emerald-600",
+                  },
+                ].map((i, x) => (
+                  <div
+                    key={x}
+                    className={`bg-white dark:bg-slate-800 ${cardPadding} rounded border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center`}
+                  >
+                    <div className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">
+                      {i.l}
+                    </div>
+                    <div
+                      className={`text-2xl font-bold ${
+                        i.c || "text-slate-800 dark:text-white"
+                      }`}
+                    >
+                      {i.v}
+                    </div>
+                    <div className="text-[10px] text-slate-400">{i.s}</div>
+                  </div>
+                ))}
+              </div>
+              <div
+                className={`bg-white dark:bg-slate-800 ${cardPadding} rounded border border-slate-200 dark:border-slate-700 shadow-sm`}
+              >
+                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3 border-b border-slate-100 dark:border-slate-700 pb-2">
+                  Daily Workload
+                </h3>
+                <div
+                  className={`${cardHeight} flex items-end justify-between gap-2 px-2 pb-2`}
+                >
+                  {daysOrder.map((day) => (
+                    <div
+                      key={day}
+                      className="flex flex-col items-center flex-1 h-full justify-end group"
+                    >
+                      <div className="relative w-full max-w-[40px] bg-brand-50 dark:bg-brand-900/20 rounded-t-sm overflow-hidden h-full flex items-end">
+                        <div
+                          className="w-full bg-brand-600 dark:bg-brand-500 hover:bg-brand-700 transition-all duration-500 bar-grow relative"
+                          style={{
+                            height: `${
+                              ((dayCounts[day] || 0) / maxDayVal) * 100
+                            }%`,
+                          }}
+                        ></div>
+                      </div>
+                      <div className="mt-2 text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                        {day}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )
+        }
+
         const styles = {
           rowHeight: isCompact ? "h-7" : "h-10",
-          headerHeight: isCompact ? "h-7" : "h-10",
-          cellPadding: isCompact ? "p-0" : "p-1",
           fontSize: isCompact ? "text-[10px]" : "text-xs",
           inputFontSize: isCompact ? "text-[9px]" : "text-[11px]",
-          iconSize: isCompact ? 14 : 16,
           headerText: isCompact ? "text-[10px]" : "text-xs",
-          topBarPadding: isCompact ? "py-1.5" : "py-2.5",
           gripWidth: isCompact ? 36 : 40,
         }
 
         return (
-          <div
-            className={`min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-200 ${
-              isCompact ? "text-xs" : "text-sm"
-            }`}
-          >
+          <div className="flex flex-col h-full">
+            {/* App Toolbar */}
+            <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-2 flex justify-between items-center">
+              <div className="flex space-x-1 bg-slate-100 dark:bg-slate-700 p-0.5 rounded-lg">
+                <button
+                  onClick={() => setViewMode("table")}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all flex items-center gap-2 ${
+                    viewMode === "table"
+                      ? "bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm"
+                      : "text-slate-500 dark:text-slate-400 hover:text-slate-900"
+                  }`}
+                >
+                  <LayoutIcon /> Table
+                </button>
+                <button
+                  onClick={() => setViewMode("dashboard")}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all flex items-center gap-2 ${
+                    viewMode === "dashboard"
+                      ? "bg-white dark:bg-slate-600 text-brand-600 dark:text-brand-400 shadow-sm"
+                      : "text-slate-500 dark:text-slate-400 hover:text-slate-900"
+                  }`}
+                >
+                  <BarChartIcon /> Dashboard
+                </button>
+              </div>
+              {viewMode === "table" && (
+                <button
+                  onClick={addTask}
+                  className="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded text-xs font-medium flex items-center gap-1.5 transition-colors"
+                >
+                  <PlusIcon /> Add Task
+                </button>
+              )}
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-auto bg-slate-50 dark:bg-slate-900/50">
+              {viewMode === "dashboard" ? (
+                <DashboardContent />
+              ) : (
+                <div className="p-4">
+                  <div className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded shadow-sm overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse min-w-[1000px]">
+                        <thead>
+                          <tr
+                            className={`bg-slate-50 dark:bg-slate-900 border-b border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 ${styles.headerText} font-bold uppercase tracking-wider`}
+                          >
+                            <th className="p-1 border-r border-slate-300 dark:border-slate-700 w-8 sticky left-0 z-30 bg-slate-50 dark:bg-slate-900"></th>
+                            <th
+                              ref={sidebarRef}
+                              style={{
+                                width: `${sidebarWidth}px`,
+                                minWidth: `${sidebarWidth}px`,
+                                left: `${styles.gripWidth}px`,
+                              }}
+                              className="p-1.5 border-r border-slate-300 dark:border-slate-700 text-left sticky z-30 bg-slate-50 dark:bg-slate-900 relative group"
+                            >
+                              <div className="flex justify-between items-center h-full px-1">
+                                <span>Task Description</span>
+                              </div>
+                              <div
+                                className="resizer group-hover:bg-brand-400"
+                                onMouseDown={startResizing}
+                              ></div>
+                            </th>
+                            {Object.entries(weeks).map(([wId, cols]) => (
+                              <th
+                                key={wId}
+                                className="p-1 border-r border-slate-300 dark:border-slate-700 text-center bg-slate-100 dark:bg-slate-800/50"
+                                colSpan={cols.length}
+                              >
+                                <input
+                                  value={project.weekLabels[wId]}
+                                  onChange={(e) =>
+                                    handleWeekLabelChange(wId, e.target.value)
+                                  }
+                                  className={`w-full bg-transparent text-center outline-none focus:text-brand-600 uppercase tracking-widest text-slate-500 dark:text-slate-400 font-bold ${styles.headerText}`}
+                                />
+                              </th>
+                            ))}
+                            <th className="p-1 w-12 sticky right-0 z-20 bg-slate-50 dark:bg-slate-900 border-l border-slate-300 dark:border-slate-700 text-center">
+                              Act
+                            </th>
+                          </tr>
+                          <tr
+                            className={`bg-white dark:bg-slate-800 border-b border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 ${styles.inputFontSize} font-semibold uppercase`}
+                          >
+                            {project.columns.map((c) => (
+                              <th
+                                key={`d-${c.id}`}
+                                className="p-1 border-r border-slate-200 dark:border-slate-700 text-center min-w-[60px] bg-slate-50 dark:bg-slate-900/50"
+                              >
+                                {c.day}
+                              </th>
+                            ))}
+                          </tr>
+                          <tr className="bg-white dark:bg-slate-800 border-b border-slate-300 dark:border-slate-700">
+                            {project.columns.map((c) => (
+                              <th
+                                key={`t-${c.id}`}
+                                className={`p-0 border-r border-slate-200 dark:border-slate-700 ${styles.rowHeight}`}
+                              >
+                                <input
+                                  value={c.time}
+                                  onChange={(e) =>
+                                    handleTimeChange(c.id, e.target.value)
+                                  }
+                                  className={`w-full h-full text-center bg-transparent outline-none text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:bg-brand-50 dark:focus:bg-slate-700 focus:text-brand-800 transition-colors ${styles.inputFontSize}`}
+                                />
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                          {project.tasks.map((task, idx) => (
+                            <tr
+                              key={task.id}
+                              draggable
+                              onDragStart={(e) => handleDragStart(e, idx)}
+                              onDragEnter={(e) => handleDragEnter(e, idx)}
+                              onDragEnd={() => (dragItem.current = null)}
+                              onDragOver={(e) => e.preventDefault()}
+                              className="group hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                            >
+                              <td
+                                className={`p-0 border-r border-slate-200 dark:border-slate-700 sticky left-0 z-20 bg-white dark:bg-slate-800 group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 w-8`}
+                              >
+                                <div
+                                  className={`${styles.rowHeight} w-full flex justify-center items-center cursor-grab active:cursor-grabbing opacity-40 group-hover:opacity-100 transition-opacity text-slate-400`}
+                                >
+                                  <GripVerticalIcon />
+                                </div>
+                              </td>
+                              <td
+                                style={{
+                                  width: `${sidebarWidth}px`,
+                                  minWidth: `${sidebarWidth}px`,
+                                  left: `${styles.gripWidth}px`,
+                                }}
+                                className="p-0 border-r border-slate-200 dark:border-slate-700 sticky z-20 bg-white dark:bg-slate-800 group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 shadow-sm"
+                              >
+                                <input
+                                  value={task.name}
+                                  onChange={(e) =>
+                                    handleTaskNameChange(
+                                      task.id,
+                                      e.target.value
+                                    )
+                                  }
+                                  className={`w-full ${styles.rowHeight} px-3 bg-transparent outline-none ${styles.fontSize} text-slate-700 dark:text-slate-200 font-medium truncate placeholder-slate-300`}
+                                  placeholder="Task name..."
+                                />
+                              </td>
+                              {project.columns.map((c) => {
+                                const isActive = task.activeSlots.includes(c.id)
+                                return (
+                                  <td
+                                    key={`${task.id}-${c.id}`}
+                                    onClick={() => toggleSlot(task.id, c.id)}
+                                    className={`border-r border-slate-200 dark:border-slate-700 cursor-pointer ${
+                                      styles.rowHeight
+                                    } transition-all duration-150 relative ${
+                                      isActive
+                                        ? "bg-brand-600 dark:bg-brand-600 shadow-inner"
+                                        : "bg-transparent hover:bg-slate-100 dark:hover:bg-slate-700"
+                                    }`}
+                                  >
+                                    <div className="opacity-0 group-hover/cell:opacity-100 absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-1.5 py-0.5 bg-slate-800 text-white text-[9px] rounded pointer-events-none z-50 whitespace-nowrap hidden">
+                                      {c.day} {c.time}
+                                    </div>
+                                  </td>
+                                )
+                              })}
+                              <td className="p-0 text-center sticky right-0 bg-white dark:bg-slate-800 group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 border-l border-slate-200 dark:border-slate-700 z-20 w-12">
+                                <button
+                                  onClick={() => deleteTask(task.id)}
+                                  className="w-6 h-6 inline-flex items-center justify-center text-slate-300 hover:text-red-500 rounded-full transition-colors"
+                                >
+                                  <TrashIcon />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                          {project.tasks.length === 0 && (
+                            <tr>
+                              <td
+                                colSpan={project.columns.length + 3}
+                                className="p-8 text-center text-slate-400 bg-slate-50 dark:bg-slate-800/30 border-dashed border-2 border-slate-200 dark:border-slate-700 m-4 rounded-lg text-xs"
+                              >
+                                No tasks available.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                        <tfoot>
+                          <tr className="bg-slate-50 dark:bg-slate-900 border-t border-slate-300 dark:border-slate-700">
+                            <td
+                              colSpan="2"
+                              className={`p-1 sticky left-0 z-20 bg-slate-50 dark:bg-slate-900 text-right ${styles.inputFontSize} font-bold text-slate-400 uppercase tracking-widest pr-3 border-r border-slate-200 dark:border-slate-700 ${styles.rowHeight} align-middle`}
+                            >
+                              Remove:
+                            </td>
+                            {project.columns.map((c) => (
+                              <td
+                                key={`del-${c.id}`}
+                                className={`p-0 text-center border-r border-slate-200 dark:border-slate-700 ${styles.rowHeight} align-middle`}
+                              >
+                                <button
+                                  onClick={() => deleteColumn(c.id)}
+                                  className="p-1 text-slate-300 hover:text-red-500 rounded transition-colors inline-flex"
+                                >
+                                  <XCircleIcon />
+                                </button>
+                              </td>
+                            ))}
+                            <td className="p-1 sticky right-0 bg-slate-50 dark:bg-slate-900 border-l border-slate-200 dark:border-slate-700"></td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      }
+
+      // 2. TODO APP (Enhanced)
+      const TodoApp = ({ project, updateProject, isCompact }) => {
+        const [viewMode, setViewMode] = useState("list") // 'list' | 'dashboard'
+        const [filter, setFilter] = useState("all")
+        const [inputText, setInputText] = useState("")
+        const [inputDate, setInputDate] = useState("")
+
+        const todos = project.todos || []
+
+        const handleAdd = (e) => {
+          if ((e.key === "Enter" || e.type === "click") && inputText.trim()) {
+            updateProject({
+              todos: [
+                ...todos,
+                {
+                  id: Date.now(),
+                  text: inputText.trim(),
+                  completed: false,
+                  startTime: inputDate || "",
+                  completedAt: null,
+                  createdAt: new Date().toISOString(),
+                },
+              ],
+            })
+            setInputText("")
+            setInputDate("")
+          }
+        }
+
+        const toggleTodo = (id) => {
+          updateProject({
+            todos: todos.map((t) =>
+              t.id === id
+                ? {
+                    ...t,
+                    completed: !t.completed,
+                    completedAt: !t.completed ? new Date().toISOString() : null,
+                  }
+                : t
+            ),
+          })
+        }
+
+        const deleteTodo = (id) =>
+          updateProject({ todos: todos.filter((t) => t.id !== id) })
+
+        const filtered = todos.filter((t) =>
+          filter === "all"
+            ? true
+            : filter === "active"
+            ? !t.completed
+            : t.completed
+        )
+        const activeCount = todos.filter((t) => !t.completed).length
+
+        const TodoDashboard = () => {
+          const total = todos.length
+          const completed = todos.filter((t) => t.completed).length
+          const pending = total - completed
+          const completionRate =
+            total > 0 ? Math.round((completed / total) * 100) : 0
+
+          // Group completed by date
+          const completedByDate = {}
+          todos
+            .filter((t) => t.completed && t.completedAt)
+            .forEach((t) => {
+              const date = new Date(t.completedAt).toLocaleDateString("en-US", {
+                weekday: "short",
+              })
+              completedByDate[date] = (completedByDate[date] || 0) + 1
+            })
+
+          return (
+            <div className="p-6 animate-fade-in space-y-6 max-w-4xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white dark:bg-slate-800 p-5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+                  <div>
+                    <div className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">
+                      Pending Tasks
+                    </div>
+                    <div className="text-3xl font-bold text-slate-800 dark:text-white">
+                      {pending}
+                    </div>
+                  </div>
+                  <div className="h-12 w-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500">
+                    <ListIcon />
+                  </div>
+                </div>
+                <div className="bg-white dark:bg-slate-800 p-5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+                  <div>
+                    <div className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">
+                      Completed
+                    </div>
+                    <div className="text-3xl font-bold text-emerald-600">
+                      {completed}
+                    </div>
+                  </div>
+                  <div className="h-12 w-12 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-500">
+                    <CheckIcon />
+                  </div>
+                </div>
+                <div className="bg-white dark:bg-slate-800 p-5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+                  <div>
+                    <div className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">
+                      Completion Rate
+                    </div>
+                    <div className="text-3xl font-bold text-brand-600">
+                      {completionRate}%
+                    </div>
+                  </div>
+                  <div className="relative h-12 w-12 flex items-center justify-center">
+                    <svg className="w-full h-full transform -rotate-90">
+                      <circle
+                        cx="24"
+                        cy="24"
+                        r="20"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="transparent"
+                        className="text-slate-100 dark:text-slate-700"
+                      />
+                      <circle
+                        cx="24"
+                        cy="24"
+                        r="20"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="transparent"
+                        strokeDasharray={126}
+                        strokeDashoffset={126 - (126 * completionRate) / 100}
+                        className="text-brand-500 transition-all duration-1000"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-slate-800 p-6 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
+                <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-4 pb-2 border-b border-slate-100 dark:border-slate-700">
+                  Completed Recently
+                </h3>
+                <div className="h-40 flex items-end justify-around gap-4">
+                  {Object.keys(completedByDate).length === 0 ? (
+                    <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">
+                      No activity yet
+                    </div>
+                  ) : (
+                    Object.entries(completedByDate).map(([date, count]) => (
+                      <div
+                        key={date}
+                        className="flex flex-col items-center justify-end h-full flex-1"
+                      >
+                        <div
+                          className="w-full max-w-[40px] bg-emerald-500 rounded-t-sm transition-all duration-500 hover:bg-emerald-600 relative group"
+                          style={{ height: `${Math.min(100, count * 20)}%` }}
+                        >
+                          <div className="absolute -top-6 w-full text-center text-xs font-bold text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {count}
+                          </div>
+                        </div>
+                        <div className="mt-2 text-xs font-bold text-slate-500">
+                          {date}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          )
+        }
+
+        return (
+          <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900/50">
+            <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-2 flex justify-between items-center">
+              <div className="flex space-x-1 bg-slate-100 dark:bg-slate-700 p-0.5 rounded-lg">
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all flex items-center gap-2 ${
+                    viewMode === "list"
+                      ? "bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm"
+                      : "text-slate-500 dark:text-slate-400 hover:text-slate-900"
+                  }`}
+                >
+                  <ListIcon /> List
+                </button>
+                <button
+                  onClick={() => setViewMode("dashboard")}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all flex items-center gap-2 ${
+                    viewMode === "dashboard"
+                      ? "bg-white dark:bg-slate-600 text-brand-600 dark:text-brand-400 shadow-sm"
+                      : "text-slate-500 dark:text-slate-400 hover:text-slate-900"
+                  }`}
+                >
+                  <BarChartIcon /> Dashboard
+                </button>
+              </div>
+              {viewMode === "list" && (
+                <div className="flex space-x-1 text-xs">
+                  {["all", "active", "completed"].map((f) => (
+                    <button
+                      key={f}
+                      onClick={() => setFilter(f)}
+                      className={`px-2 py-1 rounded capitalize transition-colors ${
+                        filter === f
+                          ? "bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300 font-bold"
+                          : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                      }`}
+                    >
+                      {f}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1 overflow-auto p-4 flex justify-center">
+              {viewMode === "dashboard" ? (
+                <TodoDashboard />
+              ) : (
+                <div className="w-full max-w-3xl bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden h-fit transition-colors duration-300">
+                  <div className="p-3 border-b border-slate-100 dark:border-slate-700 flex gap-2">
+                    <input
+                      type="text"
+                      value={inputText}
+                      onChange={(e) => setInputText(e.target.value)}
+                      onKeyDown={handleAdd}
+                      className="flex-1 p-2 bg-slate-50 dark:bg-slate-900 border-none rounded text-sm focus:ring-2 focus:ring-brand-500 outline-none text-slate-700 dark:text-slate-200 placeholder-slate-400"
+                      placeholder="Add a new task..."
+                    />
+                    <input
+                      type="datetime-local"
+                      value={inputDate}
+                      onChange={(e) => setInputDate(e.target.value)}
+                      className="w-40 p-2 bg-slate-50 dark:bg-slate-900 border-none rounded text-xs text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-brand-500"
+                    />
+                    <button
+                      onClick={handleAdd}
+                      className="px-3 bg-brand-600 hover:bg-brand-700 text-white rounded font-bold text-lg leading-none pb-1"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <ul className="divide-y divide-slate-100 dark:divide-slate-700/50 max-h-[65vh] overflow-y-auto">
+                    {filtered.length === 0 ? (
+                      <li className="p-8 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
+                        <div className="opacity-50">
+                          <ListIcon />
+                        </div>
+                        No items found
+                      </li>
+                    ) : (
+                      filtered.map((t) => (
+                        <li
+                          key={t.id}
+                          className="group flex items-center gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"
+                        >
+                          <label className="custom-checkbox relative flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              className="hidden"
+                              checked={t.completed}
+                              onChange={() => toggleTodo(t.id)}
+                            />
+                            <div
+                              className={`w-5 h-5 border-2 rounded transition-colors flex items-center justify-center ${
+                                t.completed
+                                  ? "bg-emerald-500 border-emerald-500"
+                                  : "border-slate-300 dark:border-slate-500 hover:border-brand-400"
+                              }`}
+                            >
+                              <CheckIcon />
+                            </div>
+                          </label>
+                          <div className="flex-1 min-w-0">
+                            <div
+                              className={`text-sm truncate ${
+                                t.completed
+                                  ? "text-slate-400 line-through decoration-slate-400"
+                                  : "text-slate-700 dark:text-slate-200"
+                              }`}
+                            >
+                              {t.text}
+                            </div>
+                            <div className="flex gap-3 text-[10px] text-slate-400 mt-0.5">
+                              {t.startTime && (
+                                <span className="flex items-center gap-1 text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/30 px-1.5 py-0.5 rounded">
+                                  <ClockIcon /> Start:{" "}
+                                  {new Date(t.startTime).toLocaleString(
+                                    "th-TH",
+                                    { dateStyle: "short", timeStyle: "short" }
+                                  )}
+                                </span>
+                              )}
+                              {t.completedAt && (
+                                <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded">
+                                  <CheckIcon /> Done:{" "}
+                                  {new Date(t.completedAt).toLocaleString(
+                                    "th-TH",
+                                    { dateStyle: "short", timeStyle: "short" }
+                                  )}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => deleteTodo(t.id)}
+                            className="opacity-0 group-hover:opacity-100 p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all"
+                          >
+                            <TrashIcon />
+                          </button>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 text-[10px] text-slate-400 text-center">
+                    {activeCount} items pending
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      }
+
+      // --- Main Layout ---
+      const ProjectSuite = () => {
+        // Data State: Separate Timeline and Todo Data
+        const [appData, setAppData] = useState(initialData)
+        const [currentApp, setCurrentApp] = useState("timeline") // 'timeline' | 'todo'
+
+        // App State
+        const [scriptUrl, setScriptUrl] = useState("")
+        const [isConnected, setIsConnected] = useState(false)
+        const [isLoading, setIsLoading] = useState(false)
+        const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+        const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+        const [isDarkMode, setIsDarkMode] = useState(false)
+        const [isCompact, setIsCompact] = useState(true)
+
+        // Helpers for Active Project based on Current App
+        const activeTimelineProject = useMemo(
+          () =>
+            appData.timeline.projects.find(
+              (p) => p.id === appData.timeline.activeId
+            ) || appData.timeline.projects[0],
+          [appData.timeline]
+        )
+        const activeTodoProject = useMemo(
+          () =>
+            appData.todo.projects.find((p) => p.id === appData.todo.activeId) ||
+            appData.todo.projects[0],
+          [appData.todo]
+        )
+
+        const activeProjectName =
+          currentApp === "timeline"
+            ? activeTimelineProject.name
+            : activeTodoProject.name
+        const activeProjectList =
+          currentApp === "timeline"
+            ? appData.timeline.projects
+            : appData.todo.projects
+        const activeProjectId =
+          currentApp === "timeline"
+            ? appData.timeline.activeId
+            : appData.todo.activeId
+
+        // --- Init Logic ---
+        useEffect(() => {
+          const savedDark = localStorage.getItem("pref_dark_mode") === "true"
+          setIsDarkMode(savedDark)
+          if (savedDark) document.documentElement.classList.add("dark")
+
+          const savedCompact = localStorage.getItem("pref_compact_mode")
+          if (savedCompact !== null) setIsCompact(savedCompact === "true")
+
+          const savedUrl = localStorage.getItem("google_script_url")
+          if (savedUrl) {
+            setScriptUrl(savedUrl)
+            loadFromSheet(savedUrl)
+          } else {
+            const localBackup = localStorage.getItem("suite_local_backup")
+            if (localBackup) {
+              const data = JSON.parse(localBackup)
+              // Migration Check: If old structure, convert it
+              if (data.projects) {
+                // Convert old monolithic structure to new separated structure
+                const converted = {
+                  timeline: {
+                    projects: data.projects.map(({ todos, ...rest }) => rest),
+                    activeId: data.activeProjectId,
+                  },
+                  todo: {
+                    projects: data.projects.map(
+                      ({ columns, tasks, ...rest }) => ({
+                        ...rest,
+                        todos: rest.todos || [],
+                      })
+                    ),
+                    activeId: data.activeProjectId,
+                  },
+                }
+                setAppData(converted)
+              } else {
+                setAppData(data)
+              }
+              setHasUnsavedChanges(true)
+            }
+          }
+        }, [])
+
+        useEffect(() => {
+          isDarkMode
+            ? document.documentElement.classList.add("dark")
+            : document.documentElement.classList.remove("dark")
+          localStorage.setItem("pref_dark_mode", isDarkMode)
+        }, [isDarkMode])
+        useEffect(() => {
+          localStorage.setItem("pref_compact_mode", isCompact)
+        }, [isCompact])
+        useEffect(() => {
+          if (!isLoading) {
+            localStorage.setItem("suite_local_backup", JSON.stringify(appData))
+            if (isConnected) setHasUnsavedChanges(true)
+          }
+        }, [appData])
+
+        // Handlers
+        const updateTimelineProject = (newData) => {
+          setAppData((prev) => ({
+            ...prev,
+            timeline: {
+              ...prev.timeline,
+              projects: prev.timeline.projects.map((p) =>
+                p.id === prev.timeline.activeId ? { ...p, ...newData } : p
+              ),
+            },
+          }))
+        }
+
+        const updateTodoProject = (newData) => {
+          setAppData((prev) => ({
+            ...prev,
+            todo: {
+              ...prev.todo,
+              projects: prev.todo.projects.map((p) =>
+                p.id === prev.todo.activeId ? { ...p, ...newData } : p
+              ),
+            },
+          }))
+        }
+
+        const setActiveProject = (id) => {
+          setAppData((prev) => ({
+            ...prev,
+            [currentApp]: { ...prev[currentApp], activeId: id },
+          }))
+        }
+
+        const loadFromSheet = async (url) => {
+          if (!url) return
+          setIsLoading(true)
+          try {
+            const res = await fetch(url.trim())
+            const data = await res.json()
+            if (data.timeline && data.todo) {
+              setAppData(data)
+              setIsConnected(true)
+              setHasUnsavedChanges(false)
+            } else if (data.projects) {
+              // Migration for old sheet data
+              const converted = {
+                timeline: {
+                  projects: data.projects.map(({ todos, ...rest }) => rest),
+                  activeId: data.activeProjectId,
+                },
+                todo: {
+                  projects: data.projects.map(
+                    ({ columns, tasks, ...rest }) => ({
+                      ...rest,
+                      todos: rest.todos || [],
+                    })
+                  ),
+                  activeId: data.activeProjectId,
+                },
+              }
+              setAppData(converted)
+              setIsConnected(true)
+              setHasUnsavedChanges(false)
+            } else if (data.empty) setIsConnected(true)
+          } catch (e) {
+            alert("Connection Failed")
+            setIsConnected(false)
+          } finally {
+            setIsLoading(false)
+          }
+        }
+
+        const saveToSheet = async () => {
+          if (!scriptUrl) {
+            setIsSettingsOpen(true)
+            return
+          }
+          setIsLoading(true)
+          try {
+            const res = await fetch(scriptUrl.trim(), {
+              method: "POST",
+              redirect: "follow",
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              body: JSON.stringify({
+                ...appData,
+                lastUpdated: new Date().toISOString(),
+              }),
+            })
+            const r = await res.json()
+            if (r.result === "success") {
+              setHasUnsavedChanges(false)
+              alert("Saved.")
+            } else throw new Error(r.error)
+          } catch (e) {
+            alert("Save Failed: " + e.message)
+          } finally {
+            setIsLoading(false)
+          }
+        }
+
+        const handleConnect = () => {
+          if (!scriptUrl) return
+          localStorage.setItem("google_script_url", scriptUrl.trim())
+          loadFromSheet(scriptUrl.trim())
+          setIsSettingsOpen(false)
+        }
+
+        const handleCreateProject = () => {
+          const name = prompt("New Project Name:")
+          if (name) {
+            const id = "p-" + Date.now()
+            if (currentApp === "timeline") {
+              const newP = {
+                id,
+                name,
+                columns: generateInitialColumns(),
+                weekLabels: defaultWeekLabels,
+                tasks: defaultTasks,
+              }
+              setAppData((prev) => ({
+                ...prev,
+                timeline: {
+                  projects: [...prev.timeline.projects, newP],
+                  activeId: id,
+                },
+              }))
+            } else {
+              const newP = { id, name, todos: [] }
+              setAppData((prev) => ({
+                ...prev,
+                todo: { projects: [...prev.todo.projects, newP], activeId: id },
+              }))
+            }
+          }
+        }
+
+        const handleDeleteProject = () => {
+          const projects =
+            currentApp === "timeline"
+              ? appData.timeline.projects
+              : appData.todo.projects
+          if (projects.length <= 1) {
+            alert("Cannot delete the last project.")
+            return
+          }
+
+          if (confirm(`Delete project "${activeProjectName}"?`)) {
+            const newProjects = projects.filter((p) => p.id !== activeProjectId)
+            setAppData((prev) => ({
+              ...prev,
+              [currentApp]: {
+                ...prev[currentApp],
+                projects: newProjects,
+                activeId: newProjects[0].id,
+              },
+            }))
+          }
+        }
+
+        return (
+          <div className="flex h-screen overflow-hidden text-slate-800 dark:text-slate-200 font-sans">
             {isLoading && (
               <div className="loading-overlay">
                 <div className="spinner mb-4"></div>
-                <div className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                  Syncing...
-                </div>
+                <div className="text-sm font-medium">Syncing...</div>
               </div>
             )}
 
-            <div className="w-full bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700 sticky top-0 z-40 transition-colors duration-300">
-              {/* Top Toolbar */}
-              <div
-                className={`bg-slate-900 dark:bg-black text-slate-100 px-4 ${styles.topBarPadding} flex items-center justify-between text-xs`}
+            {/* Sidebar */}
+            <div className="w-16 bg-slate-900 flex flex-col items-center py-4 gap-4 z-50 shadow-lg">
+              <div className="w-8 h-8 rounded bg-brand-500 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-brand-500/30">
+                P
+              </div>
+              <div className="w-8 h-px bg-slate-700 my-2"></div>
+              <button
+                onClick={() => setCurrentApp("timeline")}
+                title="Timeline App"
+                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${
+                  currentApp === "timeline"
+                    ? "bg-brand-600 text-white shadow-lg"
+                    : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                }`}
               >
-                <div className="flex items-center gap-3">
+                <CalendarIcon />
+              </button>
+              <button
+                onClick={() => setCurrentApp("todo")}
+                title="Todo App"
+                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${
+                  currentApp === "todo"
+                    ? "bg-emerald-600 text-white shadow-lg"
+                    : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                }`}
+              >
+                <ListIcon />
+              </button>
+              <div className="mt-auto flex flex-col gap-4">
+                <button
+                  onClick={() => setIsSettingsOpen(true)}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:bg-slate-800 hover:text-white transition-all"
+                >
+                  <SettingsIcon />
+                </button>
+              </div>
+            </div>
+
+            {/* Main Layout */}
+            <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-slate-900">
+              {/* Global Top Bar */}
+              <div className="h-12 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center px-4 bg-white dark:bg-slate-900">
+                <div className="flex items-center gap-4">
+                  <h1 className="font-bold text-lg tracking-tight hidden sm:block capitalize">
+                    {currentApp} App
+                  </h1>
+                  <div className="h-4 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block"></div>
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-400 uppercase tracking-wider font-bold">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                       Project:
                     </span>
                     <select
                       value={activeProjectId}
-                      onChange={(e) => setActiveProjectId(e.target.value)}
-                      className="bg-slate-800 text-white px-2 py-0.5 rounded border border-slate-700 outline-none focus:border-blue-500 hover:bg-slate-700 cursor-pointer text-xs"
+                      onChange={(e) => setActiveProject(e.target.value)}
+                      className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-2 py-1 rounded border-none outline-none text-xs font-medium cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                     >
-                      {projects.map((p) => (
+                      {activeProjectList.map((p) => (
                         <option key={p.id} value={p.id}>
                           {p.name}
                         </option>
                       ))}
                     </select>
-                  </div>
-                  <div className="h-3 w-px bg-slate-700"></div>
-                  <button
-                    onClick={handleCreateProject}
-                    className="hover:text-white text-slate-300 hover:underline"
-                  >
-                    New Project
-                  </button>
-                  <div className="h-3 w-px bg-slate-700"></div>
-                  <div className="flex items-center gap-1.5 text-slate-400">
-                    <SheetIcon connected={isConnected} />
-                    <span>{isConnected ? "Connected" : "Local"}</span>
+                    <button
+                      onClick={handleCreateProject}
+                      className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-400 hover:text-brand-500 transition-colors"
+                      title="New Project"
+                    >
+                      <PlusIcon />
+                    </button>
+                    <button
+                      onClick={handleDeleteProject}
+                      className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-400 hover:text-red-500 transition-colors"
+                      title="Delete Project"
+                    >
+                      <TrashIcon />
+                    </button>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setIsSettingsOpen(true)}
-                    className="flex items-center gap-1 text-slate-300 hover:text-white transition-colors"
-                  >
-                    <SettingsIcon />{" "}
-                    <span className="hidden sm:inline">Settings</span>
-                  </button>
+                  <div className="flex items-center gap-1.5 text-xs text-slate-400 hidden sm:flex">
+                    <SheetIcon connected={isConnected} />
+                    <span>{isConnected ? "Synced" : "Local"}</span>
+                  </div>
                   <button
                     onClick={saveToSheet}
                     disabled={!isConnected}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-[10px] font-bold tracking-wide transition-all shadow-sm ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all shadow-sm ${
                       !isConnected
-                        ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
+                        ? "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-600 cursor-not-allowed"
                         : hasUnsavedChanges
-                        ? "bg-amber-600 hover:bg-amber-500 text-white border border-amber-600"
-                        : "bg-emerald-700 hover:bg-emerald-600 text-white border border-emerald-700"
+                        ? "bg-amber-500 hover:bg-amber-600 text-white animate-pulse"
+                        : "bg-emerald-500 hover:bg-emerald-600 text-white"
                     }`}
                   >
-                    <SaveIcon /> {hasUnsavedChanges ? "SAVE" : "SAVED"}
+                    <SaveIcon /> {hasUnsavedChanges ? "Save" : "Saved"}
                   </button>
                 </div>
               </div>
 
-              {/* Title & Tools */}
-              <div
-                className={`px-4 ${
-                  isCompact ? "py-2" : "py-3"
-                } flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-800`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-1.5 rounded bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300">
-                    <CalendarIcon />
-                  </div>
-                  <div className="flex flex-col">
-                    <input
-                      value={activeProject.name}
-                      onChange={(e) =>
-                        updateActiveProject({ name: e.target.value })
-                      }
-                      className={`font-bold text-slate-800 dark:text-white bg-transparent border-none outline-none focus:ring-0 p-0 placeholder-slate-300 ${
-                        isCompact ? "text-lg h-6" : "text-xl h-7"
-                      }`}
-                      placeholder="Untitled Project"
-                    />
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                      Timeline Dashboard Manager
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex p-0.5 bg-slate-100 dark:bg-slate-700 rounded border border-slate-200 dark:border-slate-600">
-                  <button
-                    onClick={() => setView("timeline")}
-                    className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
-                      view === "timeline"
-                        ? "bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm"
-                        : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-                    }`}
-                  >
-                    <LayoutIcon /> Timeline
-                  </button>
-                  <button
-                    onClick={() => setView("dashboard")}
-                    className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
-                      view === "dashboard"
-                        ? "bg-white dark:bg-slate-600 text-blue-700 dark:text-blue-400 shadow-sm"
-                        : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-                    }`}
-                  >
-                    <BarChartIcon /> Dashboard
-                  </button>
-                </div>
-
-                {view === "timeline" && (
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={handleDeleteProject}
-                      className="px-2 py-1 text-slate-500 dark:text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors text-xs font-medium border border-transparent hover:border-red-100 flex items-center gap-1"
-                    >
-                      <TrashIcon />{" "}
-                      <span className="hidden sm:inline">Del</span>
-                    </button>
-                    <button
-                      onClick={addTask}
-                      className="px-3 py-1 bg-blue-700 hover:bg-blue-800 text-white rounded shadow-sm text-xs font-medium transition-colors flex items-center gap-1.5 border border-blue-800"
-                    >
-                      <PlusIcon /> Add Task
-                    </button>
-                  </div>
+              {/* App Content */}
+              <div className="flex-1 overflow-hidden relative">
+                {currentApp === "timeline" && (
+                  <TimelineApp
+                    project={activeTimelineProject}
+                    updateProject={updateTimelineProject}
+                    isCompact={isCompact}
+                  />
+                )}
+                {currentApp === "todo" && (
+                  <TodoApp
+                    project={activeTodoProject}
+                    updateProject={updateTodoProject}
+                    isCompact={isCompact}
+                  />
                 )}
               </div>
             </div>
 
-            {/* Content */}
-            {view === "dashboard" ? (
-              <DashboardView project={activeProject} isCompact={isCompact} />
-            ) : (
-              <div className="p-4">
-                <div className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded shadow-sm overflow-hidden transition-colors duration-300">
-                  <div className="overflow-x-auto">
-                    <table className="w-full border-collapse min-w-[1000px]">
-                      <thead>
-                        <tr
-                          className={`bg-slate-50 dark:bg-slate-900 border-b border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 ${styles.headerText} font-bold uppercase tracking-wider`}
-                        >
-                          <th
-                            className={`p-1 border-r border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 sticky left-0 z-30 w-8`}
-                            rowSpan="3"
-                          ></th>
-                          <th
-                            ref={sidebarRef}
-                            style={{
-                              width: `${sidebarWidth}px`,
-                              minWidth: `${sidebarWidth}px`,
-                              maxWidth: `${sidebarWidth}px`,
-                              left: `${styles.gripWidth}px`,
-                            }}
-                            className={`p-1.5 border-r border-slate-300 dark:border-slate-700 text-left sticky z-30 bg-slate-50 dark:bg-slate-900 relative group`}
-                            rowSpan="3"
-                          >
-                            <div className="flex justify-between items-center h-full px-1">
-                              <span>Task Description</span>
-                            </div>
-                            <div
-                              className="resizer group-hover:bg-blue-400"
-                              onMouseDown={startResizing}
-                            ></div>
-                          </th>
-                          {Object.entries(weeks).map(([wId, cols]) => (
-                            <th
-                              key={wId}
-                              className="p-1 border-r border-slate-300 dark:border-slate-700 text-center bg-slate-100 dark:bg-slate-800/50"
-                              colSpan={cols.length}
-                            >
-                              <input
-                                value={activeProject.weekLabels[wId]}
-                                onChange={(e) =>
-                                  handleWeekLabelChange(wId, e.target.value)
-                                }
-                                className={`w-full bg-transparent text-center outline-none focus:text-blue-700 dark:focus:text-blue-400 uppercase tracking-widest text-slate-500 dark:text-slate-400 font-bold ${styles.headerText}`}
-                              />
-                            </th>
-                          ))}
-                          <th
-                            className="p-1 border-l border-slate-300 dark:border-slate-700 w-12 sticky right-0 bg-slate-50 dark:bg-slate-900 z-20"
-                            rowSpan="3"
-                          >
-                            Act
-                          </th>
-                        </tr>
-                        <tr
-                          className={`bg-white dark:bg-slate-800 border-b border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 ${styles.inputFontSize} font-semibold uppercase`}
-                        >
-                          {activeProject.columns.map((c) => (
-                            <th
-                              key={`d-${c.id}`}
-                              className="p-1 border-r border-slate-200 dark:border-slate-700 text-center min-w-[60px] bg-slate-50 dark:bg-slate-900/50"
-                            >
-                              {c.day}
-                            </th>
-                          ))}
-                        </tr>
-                        <tr className="bg-white dark:bg-slate-800 border-b border-slate-300 dark:border-slate-700">
-                          {activeProject.columns.map((c) => (
-                            <th
-                              key={`t-${c.id}`}
-                              className={`p-0 border-r border-slate-200 dark:border-slate-700 ${styles.headerHeight}`}
-                            >
-                              <input
-                                value={c.time}
-                                onChange={(e) =>
-                                  handleTimeChange(c.id, e.target.value)
-                                }
-                                className={`w-full h-full text-center bg-transparent outline-none text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 focus:bg-blue-50 dark:focus:bg-slate-700 focus:text-blue-800 dark:focus:text-blue-300 transition-colors ${styles.inputFontSize}`}
-                              />
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                        {activeProject.tasks.map((task, idx) => (
-                          <tr
-                            key={task.id}
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, idx)}
-                            onDragEnter={(e) => handleDragEnter(e, idx)}
-                            onDragEnd={() => (dragItem.current = null)}
-                            onDragOver={(e) => e.preventDefault()}
-                            className="group hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-                          >
-                            <td
-                              className={`p-0 border-r border-slate-200 dark:border-slate-700 sticky left-0 z-20 bg-white dark:bg-slate-800 group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 w-8`}
-                            >
-                              <div
-                                className={`${styles.rowHeight} w-full flex justify-center items-center cursor-grab active:cursor-grabbing opacity-40 group-hover:opacity-100 transition-opacity text-slate-400 dark:text-slate-500`}
-                              >
-                                <GripVerticalIcon />
-                              </div>
-                            </td>
-                            <td
-                              style={{
-                                width: `${sidebarWidth}px`,
-                                minWidth: `${sidebarWidth}px`,
-                                maxWidth: `${sidebarWidth}px`,
-                                left: `${styles.gripWidth}px`,
-                              }}
-                              className="p-0 border-r border-slate-200 dark:border-slate-700 sticky z-20 bg-white dark:bg-slate-800 group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 shadow-sm"
-                            >
-                              <input
-                                value={task.name}
-                                onChange={(e) =>
-                                  handleTaskNameChange(task.id, e.target.value)
-                                }
-                                className={`w-full ${styles.rowHeight} px-3 bg-transparent outline-none ${styles.fontSize} text-slate-700 dark:text-slate-200 font-medium truncate placeholder-slate-300 dark:placeholder-slate-600`}
-                                placeholder="Enter task..."
-                              />
-                            </td>
-                            {activeProject.columns.map((c) => {
-                              const isActive = task.activeSlots.includes(c.id)
-                              return (
-                                <td
-                                  key={`${task.id}-${c.id}`}
-                                  onClick={() => toggleSlot(task.id, c.id)}
-                                  className={`border-r border-slate-200 dark:border-slate-700 cursor-pointer ${
-                                    styles.rowHeight
-                                  } transition-all duration-150 relative ${
-                                    isActive
-                                      ? "bg-blue-700 dark:bg-blue-600 shadow-inner"
-                                      : "bg-transparent hover:bg-slate-100 dark:hover:bg-slate-700"
-                                  }`}
-                                >
-                                  <div className="opacity-0 group-hover/cell:opacity-100 absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-1.5 py-0.5 bg-slate-800 text-white text-[9px] rounded pointer-events-none z-50 whitespace-nowrap hidden">
-                                    {c.day} {c.time}
-                                  </div>
-                                </td>
-                              )
-                            })}
-                            <td className="p-0 text-center sticky right-0 bg-white dark:bg-slate-800 group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 border-l border-slate-200 dark:border-slate-700 z-20 w-12">
-                              <button
-                                onClick={() => deleteTask(task.id)}
-                                className="w-6 h-6 inline-flex items-center justify-center text-slate-300 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
-                              >
-                                <TrashIcon />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                        {activeProject.tasks.length === 0 && (
-                          <tr>
-                            <td
-                              colSpan={activeProject.columns.length + 3}
-                              className="p-8 text-center text-slate-400 bg-slate-50 dark:bg-slate-800/30 border-dashed border-2 border-slate-200 dark:border-slate-700 m-4 rounded-lg text-xs"
-                            >
-                              No tasks available.
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                      <tfoot>
-                        <tr className="bg-slate-50 dark:bg-slate-900 border-t border-slate-300 dark:border-slate-700">
-                          <td
-                            colSpan="2"
-                            className={`p-1 sticky left-0 z-20 bg-slate-50 dark:bg-slate-900 text-right ${styles.inputFontSize} font-bold text-slate-400 uppercase tracking-widest pr-3 border-r border-slate-200 dark:border-slate-700 ${styles.headerHeight} align-middle`}
-                          >
-                            Remove:
-                          </td>
-                          {activeProject.columns.map((c) => (
-                            <td
-                              key={`del-${c.id}`}
-                              className={`p-0 text-center border-r border-slate-200 dark:border-slate-700 ${styles.headerHeight} align-middle`}
-                            >
-                              <button
-                                onClick={() => deleteColumn(c.id)}
-                                className="p-1 text-slate-300 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors inline-flex"
-                              >
-                                <XCircleIcon />
-                              </button>
-                            </td>
-                          ))}
-                          <td className="p-1 sticky right-0 bg-slate-50 dark:bg-slate-900 border-l border-slate-200 dark:border-slate-700"></td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center text-[10px] text-slate-500 dark:text-slate-400 gap-3">
-                  <div className="flex gap-4">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 bg-blue-700 dark:bg-blue-600 border border-blue-800 dark:border-blue-500 rounded-sm block shadow-sm"></span>
-                      <span>Scheduled</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-sm block shadow-sm"></span>
-                      <span>Available</span>
-                    </div>
-                  </div>
-                  <div>
-                    Status:{" "}
-                    <span
-                      className={
-                        isConnected
-                          ? "text-emerald-600 dark:text-emerald-400 font-semibold"
-                          : "text-amber-600 dark:text-amber-400 font-semibold"
-                      }
-                    >
-                      {isConnected ? "Online DB" : "Local Mode"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Settings Modal */}
+            {/* Global Settings Modal */}
             <Modal
               isOpen={isSettingsOpen}
               onClose={() => setIsSettingsOpen(false)}
-              title="Dashboard Settings"
+              title="Global Settings"
             >
               <div className="space-y-4">
-                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded text-xs text-blue-800 dark:text-blue-200">
-                  <strong>Google Sheets Integration</strong>
+                <div className="p-3 bg-brand-50 dark:bg-brand-900/20 border border-brand-100 dark:border-brand-800 rounded text-xs text-brand-800 dark:text-brand-200">
+                  <strong>Data Sync</strong>
                   <br />
-                  Sync data with your Google Sheet for collaboration.
+                  Connect to Google Sheets to sync all your apps and projects.
                 </div>
-
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase tracking-wide">
                     Web App URL
@@ -1398,19 +1769,17 @@
                       value={scriptUrl}
                       onChange={(e) => setScriptUrl(e.target.value)}
                       placeholder="https://script.google.com/..."
-                      className="flex-1 p-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 rounded text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                      className="flex-1 p-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 rounded text-xs focus:ring-1 focus:ring-brand-500 outline-none"
                     />
                     <button
                       onClick={handleConnect}
-                      className="px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-bold hover:bg-blue-700 transition-colors"
+                      className="px-3 py-1.5 bg-slate-800 text-white rounded text-xs font-bold hover:bg-slate-700 transition-colors"
                     >
                       Connect
                     </button>
                   </div>
                 </div>
-
                 <div className="border-t border-slate-200 dark:border-slate-700 my-4"></div>
-
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wide">
                     Appearance
@@ -1435,7 +1804,7 @@
       }
 
       const root = ReactDOM.createRoot(document.getElementById("root"))
-      root.render(<ProjectTimelineDashboard />)
+      root.render(<ProjectSuite />)
     </script>
   </body>
 </html>
