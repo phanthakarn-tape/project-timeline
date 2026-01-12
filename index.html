@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project Timeline (Formal Edition)</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- React & ReactDOM -->
+    <script
+      src="https://unpkg.com/react@18/umd/react.development.js"
+      crossorigin
+    ></script>
+    <script
+      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+      crossorigin
+    ></script>
+
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: "Sarabun", sans-serif;
+        background-color: #f1f5f9;
+      }
+      .resizer {
+        position: absolute;
+        right: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+        cursor: col-resize;
+        z-index: 50;
+        transition: background 0.2s;
+      }
+      .resizer:hover,
+      .resizing {
+        background-color: #0f172a;
+      } /* Slate-900 */
+      .cursor-grab {
+        cursor: grab;
+      }
+      .cursor-grabbing {
+        cursor: grabbing;
+      }
+
+      /* Table Styles */
+      th,
+      td {
+        border-color: #cbd5e1;
+      } /* Slate-300 */
+
+      /* Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+
+      /* Loading Overlay */
+      .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+      }
+      .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #0f172a;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body class="text-slate-800">
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useRef, useEffect, useMemo, useCallback } = React
+
+      // --- Icons (Adjusted for formal look - thinner strokes) ---
+      const CalendarIcon = () => (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+          <line x1="16" x2="16" y1="2" y2="6" />
+          <line x1="8" x2="8" y1="2" y2="6" />
+          <line x1="3" x2="21" y1="10" y2="10" />
+        </svg>
+      )
+      const PlusIcon = () => (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M5 12h14" />
+          <path d="M12 5v14" />
+        </svg>
+      )
+      const TrashIcon = () => (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M3 6h18" />
+          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+        </svg>
+      )
+      const GripVerticalIcon = () => (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="text-slate-400"
+        >
+          <circle cx="9" cy="12" r="1" />
+          <circle cx="9" cy="5" r="1" />
+          <circle cx="9" cy="19" r="1" />
+          <circle cx="15" cy="12" r="1" />
+          <circle cx="15" cy="5" r="1" />
+          <circle cx="15" cy="19" r="1" />
+        </svg>
+      )
+      const XCircleIcon = () => (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path d="m15 9-6 6" />
+          <path d="m9 9 6 6" />
+        </svg>
+      )
+      const SaveIcon = () => (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+          <polyline points="17 21 17 13 7 13 7 21" />
+          <polyline points="7 3 7 8 15 8" />
+        </svg>
+      )
+      const SheetIcon = ({ connected }) =>
+        connected ? (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-emerald-600"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+            <polyline points="10 9 9 9 8 9" />
+          </svg>
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-slate-400"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="2" y1="2" x2="22" y2="22" />
+          </svg>
+        )
+      const SettingsIcon = () => (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      )
+      const RefreshIcon = () => (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+          <path d="M3 3v5h5" />
+          <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+          <path d="M16 16h5v5" />
+        </svg>
+      )
+
+      // --- Defaults ---
+      const generateInitialColumns = () => {
+        const baseSlots = [
+          { day: "MON", time: "8.30-17.30" },
+          { day: "TUE", time: "00.01-05.00" },
+          { day: "TUE", time: "12.00-17.30" },
+          { day: "WED", time: "00.01-05.00" },
+          { day: "WED", time: "12.00-17.30" },
+          { day: "THU", time: "00.01-05.00" },
+          { day: "THU", time: "12.00-17.30" },
+          { day: "FRI", time: "00.01-05.00" },
+          { day: "FRI", time: "12.00-17.30" },
+        ]
+        let cols = []
+        let idCounter = 0
+        baseSlots.forEach((s) =>
+          cols.push({ ...s, weekId: "w1", id: `col-${idCounter++}` })
+        )
+        baseSlots.forEach((s) =>
+          cols.push({ ...s, weekId: "w2", id: `col-${idCounter++}` })
+        )
+        return cols
+      }
+
+      const defaultTasks = [{ id: 1, name: "BKK to CMI", activeSlots: [] }]
+      const defaultWeekLabels = { w1: "Week 1", w2: "Week 2" }
+      const initialProject = {
+        id: "default",
+        name: "Default Project",
+        columns: generateInitialColumns(),
+        weekLabels: defaultWeekLabels,
+        tasks: defaultTasks,
+      }
+
+      // --- Modal Component (Formal Style) ---
+      const Modal = ({ isOpen, onClose, title, children }) => {
+        if (!isOpen) return null
+        return (
+          <div className="fixed inset-0 bg-slate-900 bg-opacity-75 flex items-center justify-center z-[100] backdrop-blur-sm">
+            <div className="bg-white border border-slate-200 rounded shadow-2xl w-full max-w-md">
+              <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                <h2 className="text-lg font-semibold text-slate-800">
+                  {title}
+                </h2>
+                <button
+                  onClick={onClose}
+                  className="text-slate-400 hover:text-slate-600"
+                >
+                  <XCircleIcon />
+                </button>
+              </div>
+              <div className="p-6">{children}</div>
+              <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-2 rounded-b">
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 rounded text-sm font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      // --- Main App ---
+      const ProjectTimelineDashboard = () => {
+        // Data State
+        const [projects, setProjects] = useState([initialProject])
+        const [activeProjectId, setActiveProjectId] = useState("default")
+
+        // App State
+        const [scriptUrl, setScriptUrl] = useState("")
+        const [isConnected, setIsConnected] = useState(false)
+        const [isLoading, setIsLoading] = useState(false)
+        const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+        const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+        const [sidebarWidth, setSidebarWidth] = useState(250)
+
+        const sidebarRef = useRef(null)
+        const isResizing = useRef(false)
+        const dragItem = useRef()
+
+        const activeProject = useMemo(
+          () => projects.find((p) => p.id === activeProjectId) || projects[0],
+          [projects, activeProjectId]
+        )
+
+        // --- Init & Load ---
+        useEffect(() => {
+          const savedUrl = localStorage.getItem("google_script_url")
+          if (savedUrl) {
+            setScriptUrl(savedUrl)
+            loadFromSheet(savedUrl)
+          } else {
+            const localBackup = localStorage.getItem("timeline_local_backup")
+            if (localBackup) {
+              const data = JSON.parse(localBackup)
+              setProjects(data.projects)
+              setActiveProjectId(data.activeProjectId)
+              setHasUnsavedChanges(true)
+            }
+          }
+        }, [])
+
+        // --- Auto Backup Locally ---
+        useEffect(() => {
+          if (isLoading) return
+          const dataToSave = { projects, activeProjectId }
+          localStorage.setItem(
+            "timeline_local_backup",
+            JSON.stringify(dataToSave)
+          )
+          if (isConnected) setHasUnsavedChanges(true)
+        }, [projects, activeProjectId])
+
+        // --- Google Sheets API Handlers ---
+        const loadFromSheet = async (url) => {
+          if (!url) return
+          setIsLoading(true)
+          try {
+            const cleanUrl = url.trim()
+            const res = await fetch(cleanUrl)
+            const data = await res.json()
+
+            if (data.projects && Array.isArray(data.projects)) {
+              setProjects(data.projects)
+              if (data.activeProjectId) setActiveProjectId(data.activeProjectId)
+              setIsConnected(true)
+              setHasUnsavedChanges(false)
+            } else if (data.empty) {
+              setIsConnected(true)
+            }
+          } catch (e) {
+            console.error("Failed to load", e)
+            alert("Connection failed! Check URL.")
+            setIsConnected(false)
+          } finally {
+            setIsLoading(false)
+          }
+        }
+
+        const saveToSheet = async () => {
+          if (!scriptUrl) {
+            setIsSettingsOpen(true)
+            return
+          }
+          setIsLoading(true)
+          const dataToSave = {
+            projects,
+            activeProjectId,
+            lastUpdated: new Date().toISOString(),
+          }
+          try {
+            const cleanUrl = scriptUrl.trim()
+            const res = await fetch(cleanUrl, {
+              method: "POST",
+              redirect: "follow",
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              body: JSON.stringify(dataToSave),
+            })
+            const result = await res.json()
+            if (result.result === "success") {
+              setHasUnsavedChanges(false)
+              alert("Data saved successfully.")
+            } else {
+              throw new Error(result.error)
+            }
+          } catch (e) {
+            alert("Save failed: " + e.message)
+          } finally {
+            setIsLoading(false)
+          }
+        }
+
+        const handleConnect = () => {
+          if (!scriptUrl) return alert("Please enter a URL")
+          const cleanUrl = scriptUrl.trim()
+          localStorage.setItem("google_script_url", cleanUrl)
+          loadFromSheet(cleanUrl)
+          setIsSettingsOpen(false)
+        }
+
+        // --- Handlers (Project, Data, Resize, Drag) ---
+        const updateActiveProject = (newData) => {
+          setProjects((prev) =>
+            prev.map((p) =>
+              p.id === activeProjectId ? { ...p, ...newData } : p
+            )
+          )
+        }
+        const handleCreateProject = () => {
+          const name = prompt("Project Name:")
+          if (!name) return
+          const newProj = { ...initialProject, id: "proj-" + Date.now(), name }
+          setProjects([...projects, newProj])
+          setActiveProjectId(newProj.id)
+        }
+        const handleDeleteProject = () => {
+          if (projects.length <= 1) return alert("Cannot delete last project")
+          if (confirm("Delete project?")) {
+            const filtered = projects.filter((p) => p.id !== activeProjectId)
+            setProjects(filtered)
+            setActiveProjectId(filtered[0].id)
+          }
+        }
+
+        const handleTaskNameChange = (id, val) =>
+          updateActiveProject({
+            tasks: activeProject.tasks.map((t) =>
+              t.id === id ? { ...t, name: val } : t
+            ),
+          })
+        const toggleSlot = (taskId, colId) => {
+          updateActiveProject({
+            tasks: activeProject.tasks.map((t) =>
+              t.id === taskId
+                ? {
+                    ...t,
+                    activeSlots: t.activeSlots.includes(colId)
+                      ? t.activeSlots.filter((x) => x !== colId)
+                      : [...t.activeSlots, colId],
+                  }
+                : t
+            ),
+          })
+        }
+        const addTask = () => {
+          const maxId = activeProject.tasks.length
+            ? Math.max(...activeProject.tasks.map((t) => t.id))
+            : 0
+          updateActiveProject({
+            tasks: [
+              ...activeProject.tasks,
+              { id: maxId + 1, name: "New Task", activeSlots: [] },
+            ],
+          })
+        }
+        const deleteTask = (id) =>
+          updateActiveProject({
+            tasks: activeProject.tasks.filter((t) => t.id !== id),
+          })
+        const handleTimeChange = (colId, val) =>
+          updateActiveProject({
+            columns: activeProject.columns.map((c) =>
+              c.id === colId ? { ...c, time: val } : c
+            ),
+          })
+        const handleWeekLabelChange = (wId, val) =>
+          updateActiveProject({
+            weekLabels: { ...activeProject.weekLabels, [wId]: val },
+          })
+        const deleteColumn = (colId) => {
+          if (confirm("Delete column?")) {
+            updateActiveProject({
+              columns: activeProject.columns.filter((c) => c.id !== colId),
+              tasks: activeProject.tasks.map((t) => ({
+                ...t,
+                activeSlots: t.activeSlots.filter((x) => x !== colId),
+              })),
+            })
+          }
+        }
+
+        const startResizing = () => {
+          isResizing.current = true
+          document.body.style.cursor = "col-resize"
+          document.addEventListener("mousemove", handleMouseMove)
+          document.addEventListener("mouseup", stopResizing)
+        }
+        const handleMouseMove = (e) => {
+          if (isResizing.current && sidebarRef.current) {
+            const w =
+              e.clientX - sidebarRef.current.getBoundingClientRect().left
+            if (w > 100 && w < 600) setSidebarWidth(w)
+          }
+        }
+        const stopResizing = () => {
+          isResizing.current = false
+          document.body.style.cursor = "default"
+          document.removeEventListener("mousemove", handleMouseMove)
+          document.removeEventListener("mouseup", stopResizing)
+        }
+        const handleDragStart = (e, index) => {
+          if (e.target.tagName === "INPUT") {
+            e.preventDefault()
+            return
+          }
+          dragItem.current = index
+        }
+        const handleDragEnter = (e, index) => {
+          if (dragItem.current === null || dragItem.current === index) return
+          const newTasks = [...activeProject.tasks]
+          const dragged = newTasks[dragItem.current]
+          newTasks.splice(dragItem.current, 1)
+          newTasks.splice(index, 0, dragged)
+          dragItem.current = index
+          updateActiveProject({ tasks: newTasks })
+        }
+
+        const weeks = useMemo(() => {
+          const g = {}
+          activeProject.columns.forEach((c) => {
+            if (!g[c.weekId]) g[c.weekId] = []
+            g[c.weekId].push(c)
+          })
+          return g
+        }, [activeProject.columns])
+        const gripColWidth = 48
+
+        // --- Render ---
+        return (
+          <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+            {isLoading && (
+              <div className="loading-overlay">
+                <div className="spinner mb-4"></div>
+                <div className="text-sm font-medium text-slate-600">
+                  Syncing Data...
+                </div>
+              </div>
+            )}
+
+            <div className="w-full bg-white shadow-sm border-b border-slate-200 sticky top-0 z-40">
+              {/* Top Toolbar (Dark Corporate Style) */}
+              <div className="bg-slate-900 text-slate-100 px-6 py-2 flex items-center justify-between text-sm">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-400 uppercase tracking-wider text-xs font-bold">
+                      Project:
+                    </span>
+                    <select
+                      value={activeProjectId}
+                      onChange={(e) => setActiveProjectId(e.target.value)}
+                      className="bg-slate-800 text-white px-2 py-1 rounded border border-slate-700 outline-none focus:border-blue-500 hover:bg-slate-700 transition-colors cursor-pointer"
+                    >
+                      {projects.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="h-4 w-px bg-slate-700"></div>
+                  <button
+                    onClick={handleCreateProject}
+                    className="text-xs hover:text-white text-slate-300 hover:underline"
+                  >
+                    New Project
+                  </button>
+                  <div className="h-4 w-px bg-slate-700"></div>
+                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <SheetIcon connected={isConnected} />
+                    <span>
+                      {isConnected ? "Database Connected" : "Local Mode"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setIsSettingsOpen(true)}
+                    className="flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors"
+                    title="Database Settings"
+                  >
+                    <SettingsIcon />{" "}
+                    <span className="hidden sm:inline">Config</span>
+                  </button>
+                  <button
+                    onClick={saveToSheet}
+                    disabled={!isConnected}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded text-xs font-semibold tracking-wide transition-all shadow-sm ${
+                      !isConnected
+                        ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
+                        : hasUnsavedChanges
+                        ? "bg-amber-600 hover:bg-amber-500 text-white border border-amber-600"
+                        : "bg-emerald-700 hover:bg-emerald-600 text-white border border-emerald-700"
+                    }`}
+                  >
+                    <SaveIcon /> {hasUnsavedChanges ? "SAVE CHANGES" : "SAVED"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Title & Tools Header */}
+              <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-md bg-slate-100 border border-slate-200 text-slate-700">
+                    <CalendarIcon />
+                  </div>
+                  <div className="flex flex-col">
+                    <input
+                      value={activeProject.name}
+                      onChange={(e) =>
+                        updateActiveProject({ name: e.target.value })
+                      }
+                      className="text-xl font-bold text-slate-800 bg-transparent border-none outline-none focus:ring-0 p-0 placeholder-slate-300"
+                      placeholder="Untitled Project"
+                    />
+                    <span className="text-xs text-slate-500 mt-0.5">
+                      Timeline Dashboard Manager
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleDeleteProject}
+                    className="px-3 py-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors text-sm font-medium border border-transparent hover:border-red-100 flex items-center gap-2"
+                  >
+                    <TrashIcon />{" "}
+                    <span className="hidden sm:inline">Delete</span>
+                  </button>
+                  <button
+                    onClick={addTask}
+                    className="px-4 py-2 bg-blue-700 text-white hover:bg-blue-800 rounded-md shadow-sm text-sm font-medium transition-colors flex items-center gap-2 border border-blue-800"
+                  >
+                    <PlusIcon /> Add Task
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Content Area */}
+            <div className="p-6">
+              <div className="bg-white border border-slate-300 rounded-lg shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse min-w-[1200px]">
+                    <thead>
+                      {/* Header Row 1: Group Headers */}
+                      <tr className="bg-slate-50 border-b border-slate-300 text-slate-600 text-xs font-bold uppercase tracking-wider">
+                        <th
+                          className="p-3 border-r border-slate-300 bg-slate-50 sticky left-0 z-30 w-12"
+                          rowSpan="3"
+                        ></th>
+                        <th
+                          ref={sidebarRef}
+                          style={{
+                            width: `${sidebarWidth}px`,
+                            minWidth: `${sidebarWidth}px`,
+                            maxWidth: `${sidebarWidth}px`,
+                            left: `${gripColWidth}px`,
+                          }}
+                          className="p-3 border-r border-slate-300 text-left sticky z-30 bg-slate-50 relative group"
+                          rowSpan="3"
+                        >
+                          <div className="flex justify-between items-center h-full">
+                            <span>Task Description</span>
+                          </div>
+                          <div
+                            className="resizer group-hover:bg-blue-400"
+                            onMouseDown={startResizing}
+                          ></div>
+                        </th>
+                        {Object.entries(weeks).map(([wId, cols]) => (
+                          <th
+                            key={wId}
+                            className="p-2 border-r border-slate-300 text-center bg-slate-100"
+                            colSpan={cols.length}
+                          >
+                            <input
+                              value={activeProject.weekLabels[wId]}
+                              onChange={(e) =>
+                                handleWeekLabelChange(wId, e.target.value)
+                              }
+                              className="w-full bg-transparent text-center outline-none focus:text-blue-700 uppercase tracking-widest text-slate-500 font-bold"
+                            />
+                          </th>
+                        ))}
+                        <th
+                          className="p-2 border-l border-slate-300 w-20 sticky right-0 bg-slate-50 z-20"
+                          rowSpan="3"
+                        >
+                          Manage
+                        </th>
+                      </tr>
+
+                      {/* Header Row 2: Days */}
+                      <tr className="bg-white border-b border-slate-300 text-slate-600 text-[11px] font-semibold uppercase">
+                        {activeProject.columns.map((c) => (
+                          <th
+                            key={`d-${c.id}`}
+                            className="p-1.5 border-r border-slate-200 text-center min-w-[80px] bg-slate-50"
+                          >
+                            {c.day}
+                          </th>
+                        ))}
+                      </tr>
+
+                      {/* Header Row 3: Times (Editable) */}
+                      <tr className="bg-white border-b border-slate-300">
+                        {activeProject.columns.map((c) => (
+                          <th
+                            key={`t-${c.id}`}
+                            className="p-0 border-r border-slate-200 h-9"
+                          >
+                            <input
+                              value={c.time}
+                              onChange={(e) =>
+                                handleTimeChange(c.id, e.target.value)
+                              }
+                              className="w-full h-full text-center bg-transparent outline-none text-[10px] text-slate-500 hover:text-slate-800 focus:bg-blue-50 focus:text-blue-800 transition-colors"
+                            />
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+
+                    <tbody className="divide-y divide-slate-200">
+                      {activeProject.tasks.map((task, idx) => (
+                        <tr
+                          key={task.id}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, idx)}
+                          onDragEnter={(e) => handleDragEnter(e, idx)}
+                          onDragEnd={() => (dragItem.current = null)}
+                          onDragOver={(e) => e.preventDefault()}
+                          className="group hover:bg-slate-50 transition-colors"
+                        >
+                          {/* Drag Grip */}
+                          <td className="p-0 border-r border-slate-200 sticky left-0 z-20 bg-white group-hover:bg-slate-50">
+                            <div className="w-full h-12 flex justify-center items-center cursor-grab active:cursor-grabbing opacity-40 group-hover:opacity-100 transition-opacity">
+                              <GripVerticalIcon />
+                            </div>
+                          </td>
+
+                          {/* Task Name */}
+                          <td
+                            style={{
+                              width: `${sidebarWidth}px`,
+                              minWidth: `${sidebarWidth}px`,
+                              maxWidth: `${sidebarWidth}px`,
+                              left: `${gripColWidth}px`,
+                            }}
+                            className="p-0 border-r border-slate-200 sticky z-20 bg-white group-hover:bg-slate-50 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.05)]"
+                          >
+                            <input
+                              value={task.name}
+                              onChange={(e) =>
+                                handleTaskNameChange(task.id, e.target.value)
+                              }
+                              className="w-full h-12 px-4 bg-transparent outline-none text-sm text-slate-700 font-medium truncate placeholder-slate-300"
+                              placeholder="Enter task description..."
+                            />
+                          </td>
+
+                          {/* Timeline Slots */}
+                          {activeProject.columns.map((c) => {
+                            const isActive = task.activeSlots.includes(c.id)
+                            return (
+                              <td
+                                key={`${task.id}-${c.id}`}
+                                onClick={() => toggleSlot(task.id, c.id)}
+                                className={`border-r border-slate-200 cursor-pointer h-12 transition-all duration-150 relative
+                                                                ${
+                                                                  isActive
+                                                                    ? "bg-blue-700 shadow-inner"
+                                                                    : "bg-transparent hover:bg-slate-100"
+                                                                }
+                                                            `}
+                              >
+                                {/* Tooltip on Hover */}
+                                <div className="opacity-0 group-hover/cell:opacity-100 absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-slate-800 text-white text-[10px] rounded pointer-events-none z-50 whitespace-nowrap hidden">
+                                  {isActive ? "Deselect" : "Select"} {c.day}{" "}
+                                  {c.time}
+                                </div>
+                              </td>
+                            )
+                          })}
+
+                          {/* Row Actions */}
+                          <td className="p-0 text-center sticky right-0 bg-white group-hover:bg-slate-50 border-l border-slate-200 z-20">
+                            <button
+                              onClick={() => deleteTask(task.id)}
+                              className="w-8 h-8 inline-flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                              title="Delete Task"
+                            >
+                              <TrashIcon />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+
+                      {activeProject.tasks.length === 0 && (
+                        <tr>
+                          <td
+                            colSpan={activeProject.columns.length + 3}
+                            className="p-12 text-center text-slate-400 bg-slate-50 border-dashed border-2 border-slate-200 m-4 rounded-lg"
+                          >
+                            No tasks available. Click "Add Task" to start
+                            planning.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+
+                    <tfoot>
+                      <tr className="bg-slate-50 border-t border-slate-300">
+                        <td
+                          colSpan="2"
+                          className="p-2 sticky left-0 z-20 bg-slate-50 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest pr-4 border-r border-slate-200"
+                        >
+                          Remove Column:
+                        </td>
+                        {activeProject.columns.map((c) => (
+                          <td
+                            key={`del-${c.id}`}
+                            className="p-1 text-center border-r border-slate-200"
+                          >
+                            <button
+                              onClick={() => deleteColumn(c.id)}
+                              className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                              title="Delete this column"
+                            >
+                              <XCircleIcon />
+                            </button>
+                          </td>
+                        ))}
+                        <td className="p-2 sticky right-0 bg-slate-50 border-l border-slate-200"></td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+
+              {/* Footer Info */}
+              <div className="mt-6 flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs text-slate-500 gap-4">
+                <div className="flex gap-6">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 bg-blue-700 border border-blue-800 rounded-sm block shadow-sm"></span>
+                    <span>Scheduled / Active</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 bg-white border border-slate-300 rounded-sm block shadow-sm"></span>
+                    <span>Available</span>
+                  </div>
+                </div>
+                <div>
+                  System Status:{" "}
+                  <span
+                    className={
+                      isConnected
+                        ? "text-emerald-600 font-semibold"
+                        : "text-amber-600 font-semibold"
+                    }
+                  >
+                    {isConnected
+                      ? "Connected to Database"
+                      : "Offline (Local Storage)"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Settings Modal */}
+              <Modal
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+                title="Connection Settings"
+              >
+                <div className="space-y-4">
+                  <div className="p-3 bg-blue-50 border border-blue-100 rounded text-sm text-blue-800">
+                    <strong>Google Sheets Integration:</strong> Connect this
+                    dashboard to your Google Sheet to enable cloud sync and
+                    collaboration.
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      Web App URL
+                    </label>
+                    <input
+                      type="text"
+                      value={scriptUrl}
+                      onChange={(e) => setScriptUrl(e.target.value)}
+                      placeholder="https://script.google.com/macros/s/.../exec"
+                      className="w-full p-2 border border-slate-300 rounded text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-shadow"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">
+                      Paste the URL from your Google Apps Script deployment.
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleConnect}
+                    className="w-full py-2.5 bg-slate-800 text-white rounded font-medium hover:bg-slate-700 transition-colors shadow-sm"
+                  >
+                    Save & Connect
+                  </button>
+                </div>
+              </Modal>
+            </div>
+          </div>
+        )
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"))
+      root.render(<ProjectTimelineDashboard />)
+    </script>
+  </body>
+</html>
